@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../controllers/reading_controller.dart';
 
 class AddView extends StatelessWidget {
+  AddView({Key? key}) : super(key: key);
+
   final controller = Get.find<ReadingController>();
   final textController = TextEditingController();
 

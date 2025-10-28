@@ -7,10 +7,12 @@ import 'views/edit_view.dart';
 
 void main() async {
   await GetStorage.init();
-  runApp(MyApp());
+  runApp(ReadingListApp());
 }
 
-class MyApp extends StatelessWidget {
+class ReadingListApp extends StatelessWidget {
+  const ReadingListApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(

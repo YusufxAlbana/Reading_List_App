@@ -4,12 +4,12 @@ import '../controllers/reading_controller.dart';
 import '../models/reading_item.dart';
 
 class EditView extends StatelessWidget {
-  final controller = Get.find<ReadingController>();
-  late final ReadingItem item;
-
-  EditView() {
+  EditView({Key? key}) : super(key: key) {
     item = Get.arguments;
   }
+
+  final controller = Get.find<ReadingController>();
+  late final ReadingItem item;
 
   final textController = TextEditingController();
 

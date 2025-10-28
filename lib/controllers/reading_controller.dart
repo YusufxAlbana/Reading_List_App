@@ -9,6 +9,7 @@ class ReadingController extends GetxController {
   // Search + Filter
   final searchQuery = ''.obs;
   final filterStatus = 'all'.obs; // all, read, unread
+  final sortOrder = 'newest'.obs; // newest or oldest
 
   @override
   void onInit() {
@@ -29,11 +30,19 @@ class ReadingController extends GetxController {
       filtered = filtered.where((e) => !e.isRead);
     }
 
-    return filtered.toList();
+    var result = filtered.toList();
+    // sort by createdAt based on sortOrder
+    if (sortOrder.value == 'newest') {
+      result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    } else {
+      result.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    }
+
+    return result;
   }
 
   void addItem(String title) {
-    list.add(ReadingItem(id: DateTime.now().toString(), title: title));
+    list.add(ReadingItem(id: DateTime.now().toString(), title: title, createdAt: DateTime.now()));
   }
 
   void toggleStatus(String id) {

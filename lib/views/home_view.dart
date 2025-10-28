@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../controllers/reading_controller.dart';
 
 class HomeView extends StatelessWidget {
+  HomeView({Key? key}) : super(key: key);
+
   final controller = Get.put(ReadingController());
 
   @override
@@ -54,6 +56,26 @@ class HomeView extends StatelessWidget {
             ],
           )),
 
+          const SizedBox(height: 8),
+
+          // Sort buttons (newest <-> oldest)
+          Obx(() => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ChoiceChip(
+                label: Text("Terbaru"),
+                selected: controller.sortOrder.value == 'newest',
+                onSelected: (_) => controller.sortOrder.value = 'newest',
+              ),
+              SizedBox(width: 8),
+              ChoiceChip(
+                label: Text("Terlama"),
+                selected: controller.sortOrder.value == 'oldest',
+                onSelected: (_) => controller.sortOrder.value = 'oldest',
+              ),
+            ],
+          )),
+
           const SizedBox(height: 10),
 
           // List items
@@ -71,6 +93,7 @@ class HomeView extends StatelessWidget {
                     margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     child: ListTile(
                       title: Text(item.title),
+                      subtitle: Text(item.timeAgo()),
                       leading: Checkbox(
                         value: item.isRead,
                         onChanged: (_) => controller.toggleStatus(item.id),
