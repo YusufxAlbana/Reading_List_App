@@ -56,11 +56,15 @@ class ReadingController extends GetxController {
     }
 
     var result = filtered.toList();
-    // sort by createdAt based on sortOrder
+    // sort by createdAt or title based on sortOrder
     if (sortOrder.value == 'newest') {
       result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    } else {
+    } else if (sortOrder.value == 'oldest') {
       result.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    } else if (sortOrder.value == 'a-z') {
+      result.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+    } else if (sortOrder.value == 'z-a') {
+      result.sort((a, b) => b.title.toLowerCase().compareTo(a.title.toLowerCase()));
     }
 
     // filter by selected tags
@@ -84,8 +88,12 @@ class ReadingController extends GetxController {
 
   void toggleStatus(String id) {
     int index = list.indexWhere((e) => e.id == id);
-    list[index].isRead = !list[index].isRead;
-    list.refresh();
+    if (index != -1) {
+      list[index].isRead = !list[index].isRead;
+      list.refresh();
+      // Force storage write to ensure persistence
+      storage.write('reading_list', list.map((e) => e.toJson()).toList());
+    }
   }
 
   void deleteItem(String id) {
@@ -95,8 +103,9 @@ class ReadingController extends GetxController {
   void updateItem(String id, String title, {List<String>? tags}) {
     int index = list.indexWhere((e) => e.id == id);
     list[index].title = title;
-    if (tags != null)
+    if (tags != null) {
       list[index].tags = tags.where((t) => this.tags.contains(t)).toList();
+    }
     list.refresh();
   }
 

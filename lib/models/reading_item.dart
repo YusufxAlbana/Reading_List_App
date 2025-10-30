@@ -63,12 +63,15 @@ class ReadingItem {
     final diff = now.difference(createdAt);
 
     if (diff.inSeconds < 60) return 'just now';
-    if (diff.inMinutes < 60)
+    if (diff.inMinutes < 60) {
       return '${diff.inMinutes} minute${diff.inMinutes == 1 ? '' : 's'} ago';
-    if (diff.inHours < 24)
+    }
+    if (diff.inHours < 24) {
       return '${diff.inHours} hour${diff.inHours == 1 ? '' : 's'} ago';
-    if (diff.inDays < 30)
+    }
+    if (diff.inDays < 30) {
       return '${diff.inDays} day${diff.inDays == 1 ? '' : 's'} ago';
+    }
 
     final months = (diff.inDays / 30).floor();
     if (months < 12) return '$months month${months == 1 ? '' : 's'} ago';

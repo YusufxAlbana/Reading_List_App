@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/reading_controller.dart';
 
 class TagsView extends StatelessWidget {
-  TagsView({Key? key}) : super(key: key);
+  TagsView({super.key});
 
   final controller = Get.find<ReadingController>();
   final TextEditingController _newTagController = TextEditingController();
@@ -56,8 +56,7 @@ class TagsView extends StatelessWidget {
 class _TagList extends StatefulWidget {
   final List<String> tags;
   final ReadingController controller;
-  const _TagList({Key? key, required this.tags, required this.controller})
-      : super(key: key);
+  const _TagList({super.key, required this.tags, required this.controller});
 
   @override
   State<_TagList> createState() => _TagListState();
@@ -84,10 +83,11 @@ class _TagListState extends State<_TagList> {
                   value: _selected.contains(t),
                   onChanged: (v) {
                     setState(() {
-                      if (v == true)
+                      if (v == true) {
                         _selected.add(t);
-                      else
+                      } else {
                         _selected.remove(t);
+                      }
                     });
                   },
                 ),
