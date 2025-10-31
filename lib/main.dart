@@ -8,7 +8,7 @@ import 'views/edit_view.dart';
 import 'views/tags_view.dart';
 import 'views/all_books_view.dart';
 import 'views/splash_view.dart'; // ⬅️ Tambahkan ini
-
+import 'package:reading_list_app/views/settings_view.dart'; // TAMBAH INI
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
@@ -69,6 +69,7 @@ class ReadingListApp extends StatelessWidget {
         GetPage(name: '/add', page: () => AddView()),
         GetPage(name: '/edit', page: () => EditView()),
         GetPage(name: '/all-books', page: () => AllBooksView()),
+        GetPage(name: '/settings', page: () => SettingsView()),
       ],
     );
   }
