@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math' as math;
+import 'home_view.dart'; // Pastikan import ini benar sesuai lokasi file kamu
 
 class SplashView extends StatefulWidget {
   const SplashView({Key? key}) : super(key: key);
@@ -35,7 +36,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
 
     // Setelah animasi selesai → pindah ke HomeView
     Future.delayed(const Duration(seconds: 3), () {
-      Get.offNamed('/'); // ⬅️ Pindah ke halaman utama (HomeView)
+      Get.off(() => HomeView()); // ⬅️ langsung ke halaman utama
     });
   }
 

@@ -1,23 +1,16 @@
+// lib/controllers/reading_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import '../models/reading_item.dart';
-import '../services/firebase_service.dart';
-import 'dart:async';
+// Hapus import 'dart:async' dan 'firebase_service'
 
 class ReadingController extends GetxController {
   final storage = GetStorage();
-  final firebaseService = FirebaseService();
   final list = <ReadingItem>[].obs;
   final tags = <String>[].obs;
-  
-  StreamSubscription<List<ReadingItem>>? _booksSubscription;
-  StreamSubscription<List<String>>? _tagsSubscription;
 
-  // Opsi warna dihapus karena sudah fixed ke putih
-  // final Map<String, Color> colorOptions = { ... };
-  // selectedColorKey dihapus
-  // final selectedColorKey = 'Grey'.obs;
+  // Hapus semua referensi StreamSubscription dan FirebaseService
 
   // Search + Filter
   final searchQuery = ''.obs;
@@ -29,7 +22,7 @@ class ReadingController extends GetxController {
   void onInit() {
     super.onInit();
     
-    // Load dari local storage dulu (untuk offline support)
+    // Load dari local storage
     List? stored = storage.read('reading_list');
     if (stored != null) {
       list.assignAll(stored.map((e) => ReadingItem.fromJson(e)));
@@ -43,8 +36,7 @@ class ReadingController extends GetxController {
       }
     }
     
-    // Setup Firebase real-time sync
-    _setupFirebaseSync();
+    // Hapus _setupFirebaseSync()
     
     // Backup ke local storage saat ada perubahan
     ever(list,
@@ -52,24 +44,8 @@ class ReadingController extends GetxController {
     ever(tags, (_) => storage.write('reading_tags', tags.toList()));
   }
   
-  void _setupFirebaseSync() {
-    // Subscribe ke books stream
-    _booksSubscription = firebaseService.getBooksStream().listen((books) {
-      list.assignAll(books);
-    });
-    
-    // Subscribe ke tags stream
-    _tagsSubscription = firebaseService.getTagsStream().listen((tagsList) {
-      tags.assignAll(tagsList);
-    });
-  }
-  
-  @override
-  void onClose() {
-    _booksSubscription?.cancel();
-    _tagsSubscription?.cancel();
-    super.onClose();
-  }
+  // Hapus _setupFirebaseSync()
+  // Hapus onClose()
 
   List<ReadingItem> get filteredList {
     var filtered = list.where(
@@ -103,52 +79,52 @@ class ReadingController extends GetxController {
     return result;
   }
 
-  void addItem(String title, {List<String>? tags, String? imageUrl}) async {
+  // MODIFIKASI: Tambahkan parameter imageUrl
+  void addItem(String title, {List<String>? tags, String? imageUrl}) {
     final validTags = (tags ?? []).where((t) => this.tags.contains(t)).toList();
     final item = ReadingItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: DateTime.now().millisecondsSinceEpoch.toString(), // ID unik lokal
         title: title,
         createdAt: DateTime.now(),
         tags: validTags,
-        imageUrl: imageUrl);
+        imageUrl: imageUrl); // Simpan imageUrl
     
-    // Add ke Firebase (akan otomatis update list via stream)
-    await firebaseService.addBook(item);
+    list.add(item);
+    // 'ever' akan otomatis menyimpan ke storage
   }
 
-  void toggleStatus(String id) async {
+  void toggleStatus(String id) {
     int index = list.indexWhere((e) => e.id == id);
     if (index != -1) {
       list[index].isRead = !list[index].isRead;
       
-      // Update di Firebase
-      await firebaseService.updateBook(list[index]);
-      
-      // Refresh local
+      // Refresh local dan simpan
       list.refresh();
       storage.write('reading_list', list.map((e) => e.toJson()).toList());
     }
   }
 
-  void deleteItem(String id) async {
-    // Delete dari Firebase
-    await firebaseService.deleteBook(id);
+  void deleteItem(String id) {
+    list.removeWhere((e) => e.id == id);
+    // 'ever' akan otomatis menyimpan ke storage
   }
 
-  void updateItem(String id, String title, {List<String>? tags, String? imageUrl}) async {
+  // MODIFIKASI: Tambahkan parameter imageUrl
+  void updateItem(String id, String title, {List<String>? tags, String? imageUrl}) {
     int index = list.indexWhere((e) => e.id == id);
-    list[index].title = title;
-    if (tags != null) {
-      list[index].tags = tags.where((t) => this.tags.contains(t)).toList();
+    if (index != -1) { // Perbaikan: Pastikan index ditemukan
+      list[index].title = title;
+      if (tags != null) {
+        list[index].tags = tags.where((t) => this.tags.contains(t)).toList();
+      }
+      // Tambahkan update imageUrl
+      if (imageUrl != null) {
+        list[index].imageUrl = imageUrl;
+      }
+      
+      list.refresh();
+      // 'ever' akan otomatis menyimpan ke storage
     }
-    if (imageUrl != null) {
-      list[index].imageUrl = imageUrl;
-    }
-    
-    // Update di Firebase
-    await firebaseService.updateBook(list[index]);
-    
-    list.refresh();
   }
 
   List<String> get availableTags {
@@ -163,45 +139,34 @@ class ReadingController extends GetxController {
     }
   }
 
-  void addTag(String tag) async {
+  void addTag(String tag) {
     final t = tag.trim();
     if (t.isEmpty) return;
     if (!tags.contains(t)) {
-      // Add ke Firebase
-      await firebaseService.addTag(t);
+      tags.add(t);
+      // 'ever' akan otomatis menyimpan ke storage
     }
   }
 
-  void removeTag(String tag) async {
-    // Delete dari Firebase
-    await firebaseService.deleteTag(tag);
-    
-    // Update semua buku yang punya tag ini
+  void removeTag(String tag) {
+    tags.remove(tag);
     for (var item in list) {
       if (item.tags.contains(tag)) {
         item.tags.remove(tag);
-        await firebaseService.updateBook(item);
       }
     }
+    list.refresh(); // Refresh list untuk memicu penyimpanan 'ever'
   }
 
-  void removeTags(List<String> removed) async {
-    // Delete dari Firebase
-    await firebaseService.deleteTags(removed);
-    
-    // Update semua buku yang punya tags ini
+  void removeTags(List<String> removed) {
+    for (var tag in removed) {
+      if (tags.contains(tag)) tags.remove(tag);
+    }
     for (var item in list) {
-      if (item.tags.any((t) => removed.contains(t))) {
-        item.tags.removeWhere((t) => removed.contains(t));
-        await firebaseService.updateBook(item);
-      }
+      item.tags.removeWhere((t) => removed.contains(t));
     }
+    list.refresh(); // Refresh list untuk memicu penyimpanan 'ever'
   }
 
-  // Color helpers dihapus
-  // void setSelectedColor(String key) { ... }
-  // Color get selectedColor => ... ; // Ini sekarang getter dummy
-  Color get selectedColor => Colors.white; // Mengembalikan putih secara default
-
-  // 'selectedTextColor' tidak lagi diperlukan
+  Color get selectedColor => Colors.white; 
 }
