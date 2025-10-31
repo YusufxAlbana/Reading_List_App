@@ -7,6 +7,7 @@ class AddView extends StatelessWidget {
 
   final controller = Get.find<ReadingController>();
   final textController = TextEditingController();
+  final imageUrlController = TextEditingController();
   final pickedTags = <String>[].obs;
 
   @override
@@ -24,6 +25,14 @@ class AddView extends StatelessWidget {
             TextField(
               controller: textController,
               decoration: InputDecoration(labelText: 'Judul Bacaan'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: imageUrlController,
+              decoration: InputDecoration(
+                labelText: 'URL Gambar Cover (opsional)',
+                hintText: 'https://example.com/book-cover.jpg',
+              ),
             ),
             const SizedBox(height: 12),
             Obx(() {
@@ -66,8 +75,13 @@ class AddView extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 if (textController.text.isNotEmpty) {
-                  controller.addItem(textController.text,
-                      tags: pickedTags.toList());
+                  controller.addItem(
+                    textController.text,
+                    tags: pickedTags.toList(),
+                    imageUrl: imageUrlController.text.trim().isEmpty 
+                      ? null 
+                      : imageUrlController.text.trim(),
+                  );
                   Get.back();
                 }
               },

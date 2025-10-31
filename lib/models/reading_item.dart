@@ -4,6 +4,7 @@ class ReadingItem {
   bool isRead;
   DateTime createdAt;
   List<String> tags;
+  String? imageUrl;
 
   ReadingItem({
     required this.id,
@@ -11,6 +12,7 @@ class ReadingItem {
     this.isRead = false,
     DateTime? createdAt,
     List<String>? tags,
+    this.imageUrl,
   })  : createdAt = createdAt ?? DateTime.now(),
         tags = tags ?? const [];
 
@@ -44,6 +46,7 @@ class ReadingItem {
       isRead: json['isRead'] ?? false,
       createdAt: parsed,
       tags: parsedTags,
+      imageUrl: json['imageUrl'],
     );
   }
 
@@ -54,6 +57,7 @@ class ReadingItem {
       'isRead': isRead,
       'createdAt': createdAt.toIso8601String(),
       'tags': tags,
+      'imageUrl': imageUrl,
     };
   }
 

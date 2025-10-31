@@ -523,19 +523,49 @@ class HomeView extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.all(12),
-              child: Center(
-                child: Text(
-                  item.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+                  ? Image.network(
+                      item.imageUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                              item.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          item.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
               ),
             ),
             const SizedBox(height: 6),
@@ -958,19 +988,49 @@ class HomeView extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.all(10),
-              child: Center(
-                child: Text(
-                  item.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+                  ? Image.network(
+                      item.imageUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              item.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text(
+                          item.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
               ),
             ),
             const SizedBox(height: 6),

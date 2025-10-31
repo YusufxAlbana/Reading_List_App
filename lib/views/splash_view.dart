@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'dart:math' as math;
-import 'home_view.dart'; // pastikan file ini ada
 
 class SplashView extends StatefulWidget {
   const SplashView({Key? key}) : super(key: key);
@@ -9,8 +9,7 @@ class SplashView extends StatefulWidget {
   State<SplashView> createState() => _SplashViewState();
 }
 
-class _SplashViewState extends State<SplashView>
-    with TickerProviderStateMixin {
+class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
   late AnimationController _rotationController;
   late AnimationController _scaleController;
   late AnimationController _fadeController;
@@ -19,30 +18,24 @@ class _SplashViewState extends State<SplashView>
   void initState() {
     super.initState();
 
-    // Rotasi logo
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat();
 
-    // Animasi scale teks
     _scaleController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..forward();
 
-    // Fade in teks
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     )..forward();
 
-    // Setelah 3 detik, pindah ke Home
+    // Setelah animasi selesai → pindah ke HomeView
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomeView()),
-      );
+      Get.offNamed('/'); // ⬅️ Pindah ke halaman utama (HomeView)
     });
   }
 
@@ -114,10 +107,10 @@ class _SplashViewState extends State<SplashView>
                     curve: Curves.elasticOut,
                   ),
                   child: const Text(
-                    "Welcome to My Awesome App!",
+                    "📚 Reading List App",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       letterSpacing: 1.5,
@@ -135,7 +128,7 @@ class _SplashViewState extends State<SplashView>
 
               const SizedBox(height: 20),
 
-              // Garis progress animasi
+              // Progress bar animasi
               TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
                 duration: const Duration(seconds: 3),

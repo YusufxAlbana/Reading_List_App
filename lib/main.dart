@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'controllers/reading_controller.dart';
 import 'package:get_storage/get_storage.dart';
+import 'controllers/reading_controller.dart';
 import 'views/home_view.dart';
 import 'views/add_view.dart';
 import 'views/edit_view.dart';
 import 'views/tags_view.dart';
 import 'views/all_books_view.dart';
+import 'views/splash_view.dart'; // ⬅️ Tambahkan ini
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   Get.put(ReadingController());
-  runApp(ReadingListApp());
+  runApp(const ReadingListApp());
 }
 
 // --- APLIKASI UTAMA ---
-
 class ReadingListApp extends StatelessWidget {
   const ReadingListApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Custom dark library theme inspired by the reference design
+    // Tema dark elegan
     final libraryTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -51,18 +52,22 @@ class ReadingListApp extends StatelessWidget {
         titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
-    
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: libraryTheme,
       darkTheme: libraryTheme,
-      home: HomeView(),
+
+      // ⬇️ SplashView jadi halaman pertama
+      home: const SplashView(),
+
+      // Routing GetX
       getPages: [
         GetPage(name: '/', page: () => HomeView()),
         GetPage(name: '/tags', page: () => TagsView()),
         GetPage(name: '/add', page: () => AddView()),
-        GetPage(name: '/edit', page: () => const EditView()),
+        GetPage(name: '/edit', page: () => EditView()),
         GetPage(name: '/all-books', page: () => AllBooksView()),
       ],
     );
