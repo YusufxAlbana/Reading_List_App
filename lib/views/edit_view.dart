@@ -14,6 +14,7 @@ class _EditViewState extends State<EditView> {
   final controller = Get.find<ReadingController>();
   late final ReadingItem item;
   late final TextEditingController textController;
+  late final TextEditingController imageUrlController;
   final pickedTags = <String>[].obs;
 
   @override
@@ -21,6 +22,7 @@ class _EditViewState extends State<EditView> {
     super.initState();
     item = Get.arguments as ReadingItem;
     textController = TextEditingController(text: item.title);
+    imageUrlController = TextEditingController(text: item.imageUrl ?? '');
     pickedTags.assignAll(
       item.tags.where((t) => controller.tags.contains(t)).toList(),
     );
@@ -29,6 +31,7 @@ class _EditViewState extends State<EditView> {
   @override
   void dispose() {
     textController.dispose();
+    imageUrlController.dispose();
     super.dispose();
   }
 
@@ -87,6 +90,29 @@ class _EditViewState extends State<EditView> {
                       contentPadding: EdgeInsets.all(16),
                     ),
                     maxLines: null,
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Book Cover URL Section
+              _buildSection(
+                'Book Cover Image',
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3D5159),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TextField(
+                    controller: imageUrlController,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    decoration: const InputDecoration(
+                      hintText: 'https://example.com/book-cover.jpg',
+                      hintStyle: TextStyle(color: Colors.white38),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(16),
+                    ),
                   ),
                 ),
               ),
@@ -324,6 +350,9 @@ class _EditViewState extends State<EditView> {
       item.id,
       newTitle,
       tags: pickedTags.toList(),
+      imageUrl: imageUrlController.text.trim().isEmpty 
+        ? null 
+        : imageUrlController.text.trim(),
     );
     
     Get.back();

@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import '../models/reading_item.dart';
+import '../services/firebase_service.dart';
+import 'dart:async';
 
 class ReadingController extends GetxController {
   final storage = GetStorage();
+  final firebaseService = FirebaseService();
   final list = <ReadingItem>[].obs;
   final tags = <String>[].obs;
+  
+  StreamSubscription<List<ReadingItem>>? _booksSubscription;
+  StreamSubscription<List<String>>? _tagsSubscription;
 
   // Opsi warna dihapus karena sudah fixed ke putih
   // final Map<String, Color> colorOptions = { ... };
@@ -21,6 +27,9 @@ class ReadingController extends GetxController {
 
   @override
   void onInit() {
+    super.onInit();
+    
+    // Load dari local storage dulu (untuk offline support)
     List? stored = storage.read('reading_list');
     if (stored != null) {
       list.assignAll(stored.map((e) => ReadingItem.fromJson(e)));
@@ -33,16 +42,33 @@ class ReadingController extends GetxController {
         tags.assignAll(storedTags.map((e) => e.toString()).toList());
       }
     }
-    // Logic untuk storedColor dihapus
-    // final storedColor = storage.read('app_bg_color');
-    // if (storedColor != null && colorOptions.containsKey(storedColor)) {
-    //   selectedColorKey.value = storedColor;
-    // }
+    
+    // Setup Firebase real-time sync
+    _setupFirebaseSync();
+    
+    // Backup ke local storage saat ada perubahan
     ever(list,
         (_) => storage.write('reading_list', list.map((e) => e.toJson()).toList()));
     ever(tags, (_) => storage.write('reading_tags', tags.toList()));
-    // ever(selectedColorKey, (_) => storage.write('app_bg_color', selectedColorKey.value)); // Dihapus
-    super.onInit();
+  }
+  
+  void _setupFirebaseSync() {
+    // Subscribe ke books stream
+    _booksSubscription = firebaseService.getBooksStream().listen((books) {
+      list.assignAll(books);
+    });
+    
+    // Subscribe ke tags stream
+    _tagsSubscription = firebaseService.getTagsStream().listen((tagsList) {
+      tags.assignAll(tagsList);
+    });
+  }
+  
+  @override
+  void onClose() {
+    _booksSubscription?.cancel();
+    _tagsSubscription?.cancel();
+    super.onClose();
   }
 
   List<ReadingItem> get filteredList {
@@ -77,35 +103,51 @@ class ReadingController extends GetxController {
     return result;
   }
 
-  void addItem(String title, {List<String>? tags}) {
+  void addItem(String title, {List<String>? tags, String? imageUrl}) async {
     final validTags = (tags ?? []).where((t) => this.tags.contains(t)).toList();
-    list.add(ReadingItem(
-        id: DateTime.now().toString(),
+    final item = ReadingItem(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,
         createdAt: DateTime.now(),
-        tags: validTags));
+        tags: validTags,
+        imageUrl: imageUrl);
+    
+    // Add ke Firebase (akan otomatis update list via stream)
+    await firebaseService.addBook(item);
   }
 
-  void toggleStatus(String id) {
+  void toggleStatus(String id) async {
     int index = list.indexWhere((e) => e.id == id);
     if (index != -1) {
       list[index].isRead = !list[index].isRead;
+      
+      // Update di Firebase
+      await firebaseService.updateBook(list[index]);
+      
+      // Refresh local
       list.refresh();
-      // Force storage write to ensure persistence
       storage.write('reading_list', list.map((e) => e.toJson()).toList());
     }
   }
 
-  void deleteItem(String id) {
-    list.removeWhere((e) => e.id == id);
+  void deleteItem(String id) async {
+    // Delete dari Firebase
+    await firebaseService.deleteBook(id);
   }
 
-  void updateItem(String id, String title, {List<String>? tags}) {
+  void updateItem(String id, String title, {List<String>? tags, String? imageUrl}) async {
     int index = list.indexWhere((e) => e.id == id);
     list[index].title = title;
     if (tags != null) {
       list[index].tags = tags.where((t) => this.tags.contains(t)).toList();
     }
+    if (imageUrl != null) {
+      list[index].imageUrl = imageUrl;
+    }
+    
+    // Update di Firebase
+    await firebaseService.updateBook(list[index]);
+    
     list.refresh();
   }
 
@@ -121,32 +163,39 @@ class ReadingController extends GetxController {
     }
   }
 
-  void addTag(String tag) {
+  void addTag(String tag) async {
     final t = tag.trim();
     if (t.isEmpty) return;
     if (!tags.contains(t)) {
-      tags.add(t);
+      // Add ke Firebase
+      await firebaseService.addTag(t);
     }
   }
 
-  void removeTag(String tag) {
-    tags.remove(tag);
+  void removeTag(String tag) async {
+    // Delete dari Firebase
+    await firebaseService.deleteTag(tag);
+    
+    // Update semua buku yang punya tag ini
     for (var item in list) {
       if (item.tags.contains(tag)) {
         item.tags.remove(tag);
+        await firebaseService.updateBook(item);
       }
     }
-    list.refresh();
   }
 
-  void removeTags(List<String> removed) {
-    for (var tag in removed) {
-      if (tags.contains(tag)) tags.remove(tag);
-    }
+  void removeTags(List<String> removed) async {
+    // Delete dari Firebase
+    await firebaseService.deleteTags(removed);
+    
+    // Update semua buku yang punya tags ini
     for (var item in list) {
-      item.tags.removeWhere((t) => removed.contains(t));
+      if (item.tags.any((t) => removed.contains(t))) {
+        item.tags.removeWhere((t) => removed.contains(t));
+        await firebaseService.updateBook(item);
+      }
     }
-    list.refresh();
   }
 
   // Color helpers dihapus

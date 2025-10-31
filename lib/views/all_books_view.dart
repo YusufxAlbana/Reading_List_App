@@ -349,32 +349,69 @@ class AllBooksView extends StatelessWidget {
                   color: colors[index % colors.length],
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 ),
-                padding: const EdgeInsets.all(12),
                 child: Stack(
                   children: [
-                    Center(
-                      child: Text(
-                        item.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 5,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+                        ? Image.network(
+                            item.imageUrl!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    item.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 5,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text(
+                                item.title,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
                     ),
                     // Read status badge
                     if (item.isRead)
                       Positioned(
-                        top: 0,
-                        right: 0,
+                        top: 8,
+                        right: 8,
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE8C547),
                             borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: const Text(
                             'Read',

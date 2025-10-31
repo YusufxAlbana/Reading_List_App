@@ -7,10 +7,23 @@ import 'views/add_view.dart';
 import 'views/edit_view.dart';
 import 'views/tags_view.dart';
 import 'views/all_books_view.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  // Initialize GetStorage untuk offline backup
   await GetStorage.init();
+  
+  // Initialize Controller
   Get.put(ReadingController());
+  
   runApp(ReadingListApp());
 }
 
