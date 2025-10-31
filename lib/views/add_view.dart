@@ -1,14 +1,41 @@
+import 'dart:io'; // ⬅️ Tambahkan
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart'; // ⬅️ Tambahkan
+import 'package:path_provider/path_provider.dart'; // ⬅️ Tambahkan
+import 'package:path/path.dart' as p; // ⬅️ Tambahkan
+
 import '../controllers/reading_controller.dart';
+import 'widgets/book_image_widget.dart'; // ⬅️ Tambahkan
 
 class AddView extends StatelessWidget {
   AddView({super.key});
 
   final controller = Get.find<ReadingController>();
   final textController = TextEditingController();
-  final imageUrlController = TextEditingController();
+  
+  // Hapus imageUrlController
+  // final imageUrlController = TextEditingController(); 
+  
   final pickedTags = <String>[].obs;
+  
+  // Variabel untuk menyimpan path gambar yang dipilih
+  final pickedImagePath = Rx<String?>(null); // ⬅️ Tambahkan
+
+  // Fungsi untuk memilih gambar
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      // Salin file ke direktori aplikasi yang aman
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = p.basename(image.path);
+      final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
+      
+      pickedImagePath.value = savedImage.path;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,22 +45,34 @@ class AddView extends StatelessWidget {
       appBar: AppBar(
         title: Text('Tambahkan Bacaan'),
       ),
-      body: Padding(
+      body: SingleChildScrollView( // ⬅️ Bungkus dengan SingleChildScrollView
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            // --- BAGIAN INPUT GAMBAR ---
+            Obx(() => BookImageWidget(
+                  imageUrl: pickedImagePath.value,
+                  height: 200,
+                  width: 150,
+                )),
+            const SizedBox(height: 12),
+            TextButton.icon(
+              icon: const Icon(Icons.image),
+              label: const Text('Pilih Gambar Sampul'),
+              onPressed: _pickImage, // ⬅️ Panggil fungsi pilih gambar
+            ),
+            // --- AKHIR BAGIAN GAMBAR ---
+
+            const SizedBox(height: 16),
             TextField(
               controller: textController,
               decoration: InputDecoration(labelText: 'Judul Bacaan'),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: imageUrlController,
-              decoration: InputDecoration(
-                labelText: 'URL Gambar Cover (opsional)',
-                hintText: 'https://example.com/book-cover.jpg',
-              ),
-            ),
+            
+            // Hapus TextField untuk Image URL
+            // const SizedBox(height: 16),
+            // TextField( ... ),
+
             const SizedBox(height: 12),
             Obx(() {
               final tags = controller.tags;
@@ -49,16 +88,13 @@ class AddView extends StatelessWidget {
                   ],
                 );
               }
-
-              // --- PERUBAHAN: Hapus widget Card dan Padding ---
               return Wrap(
                 spacing: 8,
-                runSpacing: 4, // Tambahkan run spacing agar rapi
+                runSpacing: 4,
                 children: tags
                     .map((t) => Obx(() => FilterChip(
                           label: Text(t),
                           selected: pickedTags.contains(t),
-                          // selectedColor tidak perlu di-set, sudah di-handle ChipTheme
                           onSelected: (_) {
                             if (pickedTags.contains(t)) {
                               pickedTags.remove(t);
@@ -69,7 +105,6 @@ class AddView extends StatelessWidget {
                         )))
                     .toList(),
               );
-              // --- AKHIR PERUBAHAN ---
             }),
             SizedBox(height: 16),
             ElevatedButton(
@@ -78,9 +113,8 @@ class AddView extends StatelessWidget {
                   controller.addItem(
                     textController.text,
                     tags: pickedTags.toList(),
-                    imageUrl: imageUrlController.text.trim().isEmpty 
-                      ? null 
-                      : imageUrlController.text.trim(),
+                    // Kirim path gambar, bukan URL
+                    imageUrl: pickedImagePath.value, 
                   );
                   Get.back();
                 }

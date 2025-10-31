@@ -1,7 +1,9 @@
+// lib/views/all_books_view.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reading_controller.dart';
 import '../models/reading_item.dart';
+import 'widgets/book_image_widget.dart'; // ⬅️ IMPORT WIDGET BARU
 
 class AllBooksView extends StatelessWidget {
   AllBooksView({super.key});
@@ -13,7 +15,7 @@ class AllBooksView extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF2C3E45),
       appBar: AppBar(
@@ -70,16 +72,20 @@ class AllBooksView extends StatelessWidget {
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE8C547).withOpacity(0.3)),
+                      border: Border.all(
+                          color: const Color(0xFFE8C547).withOpacity(0.3)),
                     ),
                     child: Column(
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildStatItem(Icons.library_books, 'Total', total.toString()),
-                            _buildStatItem(Icons.check_circle, 'Read', read.toString()),
-                            _buildStatItem(Icons.pending, 'Unread', unread.toString()),
+                            _buildStatItem(Icons.library_books, 'Total',
+                                total.toString()),
+                            _buildStatItem(
+                                Icons.check_circle, 'Read', read.toString()),
+                            _buildStatItem(
+                                Icons.pending, 'Unread', unread.toString()),
                           ],
                         ),
                         if (isFiltered) ...[
@@ -91,7 +97,8 @@ class AllBooksView extends StatelessWidget {
                             children: [
                               Text(
                                 'Showing $filtered ${filtered == 1 ? 'book' : 'books'}',
-                                style: const TextStyle(color: Color(0xFFE8C547), fontSize: 12),
+                                style: const TextStyle(
+                                    color: Color(0xFFE8C547), fontSize: 12),
                               ),
                               TextButton.icon(
                                 onPressed: () {
@@ -99,15 +106,19 @@ class AllBooksView extends StatelessWidget {
                                   controller.filterStatus.value = 'all';
                                   controller.selectedTags.clear();
                                 },
-                                icon: const Icon(Icons.clear_all, size: 16, color: Color(0xFFE8C547)),
+                                icon: const Icon(Icons.clear_all,
+                                    size: 16, color: Color(0xFFE8C547)),
                                 label: const Text(
                                   'Clear Filters',
-                                  style: TextStyle(color: Color(0xFFE8C547), fontSize: 12),
+                                  style: TextStyle(
+                                      color: Color(0xFFE8C547), fontSize: 12),
                                 ),
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
                                   minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
                             ],
@@ -118,7 +129,7 @@ class AllBooksView extends StatelessWidget {
                   );
                 }),
               ),
-              
+
               // Search Bar
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -132,29 +143,35 @@ class AllBooksView extends StatelessWidget {
                     style: const TextStyle(color: Colors.white70, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Search books...',
-                      hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
-                      prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 20),
-                      suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.white38, size: 20),
-                              onPressed: () => controller.searchQuery.value = '',
-                            )
-                          : const SizedBox.shrink()),
+                      hintStyle:
+                          const TextStyle(color: Colors.white38, fontSize: 14),
+                      prefixIcon: const Icon(Icons.search,
+                          color: Colors.white38, size: 20),
+                      suffixIcon: Obx(() =>
+                          controller.searchQuery.value.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear,
+                                      color: Colors.white38, size: 20),
+                                  onPressed: () =>
+                                      controller.searchQuery.value = '',
+                                )
+                              : const SizedBox.shrink()),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onChanged: (v) => controller.searchQuery.value = v,
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Books Grid
               Expanded(
                 child: Obx(() {
                   final books = controller.filteredList;
-                  
+
                   if (books.isEmpty) {
                     return Center(
                       child: SingleChildScrollView(
@@ -164,34 +181,42 @@ class AllBooksView extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF3D5159).withOpacity(0.5),
+                                color:
+                                    const Color(0xFF3D5159).withOpacity(0.5),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.menu_book, color: Colors.white38, size: 60),
+                              child: const Icon(Icons.menu_book,
+                                  color: Colors.white38, size: 60),
                             ),
                             const SizedBox(height: 24),
                             const Text(
                               'No books found',
-                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              controller.searchQuery.value.isNotEmpty 
-                                ? 'Try adjusting your search or filters'
-                                : 'Start adding books to your library',
-                              style: const TextStyle(color: Colors.white54, fontSize: 14),
+                              controller.searchQuery.value.isNotEmpty
+                                  ? 'Try adjusting your search or filters'
+                                  : 'Start adding books to your library',
+                              style: const TextStyle(
+                                  color: Colors.white54, fontSize: 14),
                               textAlign: TextAlign.center,
                             ),
                             if (controller.list.isEmpty) ...[
                               const SizedBox(height: 24),
                               ElevatedButton.icon(
                                 onPressed: () => Get.toNamed('/add'),
-                                icon: const Icon(Icons.add, color: Colors.black),
+                                icon:
+                                    const Icon(Icons.add, color: Colors.black),
                                 label: const Text('Add Your First Book'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFE8C547),
                                   foregroundColor: Colors.black,
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(24),
                                   ),
@@ -203,18 +228,20 @@ class AllBooksView extends StatelessWidget {
                       ),
                     );
                   }
-                  
+
                   return GridView.builder(
                     padding: const EdgeInsets.all(16),
                     physics: const AlwaysScrollableScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: isMobile ? 2 : (screenWidth < 1000 ? 3 : 4),
+                      crossAxisCount:
+                          isMobile ? 2 : (screenWidth < 1000 ? 3 : 4),
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
                       childAspectRatio: 0.65,
                     ),
                     itemCount: books.length,
-                    itemBuilder: (ctx, i) => _buildDismissibleCard(books[i], i),
+                    itemBuilder: (ctx, i) =>
+                        _buildDismissibleCard(books[i], i),
                   );
                 }),
               ),
@@ -275,7 +302,7 @@ class AllBooksView extends StatelessWidget {
       confirmDismiss: (direction) async {
         // Store the deleted item for undo
         deletedItems[item.id] = item;
-        
+
         // Show snackbar with undo option
         Get.snackbar(
           'Book Deleted',
@@ -297,18 +324,19 @@ class AllBooksView extends StatelessWidget {
             },
             child: const Text(
               'UNDO',
-              style: TextStyle(color: Color(0xFFE8C547), fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Color(0xFFE8C547), fontWeight: FontWeight.bold),
             ),
           ),
         );
-        
+
         // Actually delete after snackbar duration
         Future.delayed(const Duration(seconds: 3), () {
           if (deletedItems.containsKey(item.id)) {
             deletedItems.remove(item.id);
           }
         });
-        
+
         return true;
       },
       onDismissed: (direction) {
@@ -319,15 +347,6 @@ class AllBooksView extends StatelessWidget {
   }
 
   Widget _bookCard(item, int index) {
-    final colors = [
-      const Color(0xFF8B4513),
-      const Color(0xFF2F4F4F),
-      const Color(0xFF556B2F),
-      const Color(0xFFCC7722),
-      const Color(0xFF4B0082),
-      const Color(0xFFDC143C),
-    ];
-    
     return GestureDetector(
       onTap: () => Get.toNamed('/edit', arguments: item),
       onLongPress: () => _showBookDetails(item),
@@ -345,63 +364,33 @@ class AllBooksView extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Container(
-                decoration: BoxDecoration(
-                  color: colors[index % colors.length],
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                decoration: const BoxDecoration(
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: Stack(
                   children: [
+                    // ⬇️ PERUBAHAN DI SINI
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                      child: item.imageUrl != null && item.imageUrl!.isNotEmpty
-                        ? Image.network(
-                            item.imageUrl!,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Text(
-                                    item.title,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              );
-                            },
-                          )
-                        : Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(
-                                item.title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 5,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: BookImageWidget(
+                        imageUrl: item.imageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
                     ),
+                    // ⬆️ AKHIR PERUBAHAN
+                    
                     // Read status badge
                     if (item.isRead)
                       Positioned(
                         top: 8,
                         right: 8,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE8C547),
                             borderRadius: BorderRadius.circular(12),
@@ -448,26 +437,31 @@ class AllBooksView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       item.timeAgo(),
-                      style: const TextStyle(color: Colors.white54, fontSize: 10),
+                      style:
+                          const TextStyle(color: Colors.white54, fontSize: 10),
                     ),
                     if (item.tags.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Wrap(
                         spacing: 4,
-                        children: item.tags.take(2).map<Widget>((tag) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2C3E45),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            tag,
-                            style: const TextStyle(
-                              color: Color(0xFFE8C547),
-                              fontSize: 9,
-                            ),
-                          ),
-                        )).toList(),
+                        children: item.tags
+                            .take(2)
+                            .map<Widget>((tag) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2C3E45),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: const TextStyle(
+                                      color: Color(0xFFE8C547),
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
                       ),
                     ],
                   ],
@@ -505,102 +499,107 @@ class AllBooksView extends StatelessWidget {
               const Text('Sort Order', style: TextStyle(color: Colors.white70)),
               const SizedBox(height: 12),
               Obx(() => Wrap(
-                spacing: 8,
-                children: [
-                  ChoiceChip(
-                    label: const Text('Newest'),
-                    selected: controller.sortOrder.value == 'newest',
-                    onSelected: (_) => controller.sortOrder.value = 'newest',
-                    selectedColor: const Color(0xFFE8C547),
-                    backgroundColor: const Color(0xFF3D5159),
-                    labelStyle: TextStyle(
-                      color: controller.sortOrder.value == 'newest'
-                          ? Colors.black
-                          : Colors.white70,
-                    ),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Oldest'),
-                    selected: controller.sortOrder.value == 'oldest',
-                    onSelected: (_) => controller.sortOrder.value = 'oldest',
-                    selectedColor: const Color(0xFFE8C547),
-                    backgroundColor: const Color(0xFF3D5159),
-                    labelStyle: TextStyle(
-                      color: controller.sortOrder.value == 'oldest'
-                          ? Colors.black
-                          : Colors.white70,
-                    ),
-                  ),
-                  ChoiceChip(
-                    label: const Text('A-Z'),
-                    selected: controller.sortOrder.value == 'a-z',
-                    onSelected: (_) => controller.sortOrder.value = 'a-z',
-                    selectedColor: const Color(0xFFE8C547),
-                    backgroundColor: const Color(0xFF3D5159),
-                    labelStyle: TextStyle(
-                      color: controller.sortOrder.value == 'a-z'
-                          ? Colors.black
-                          : Colors.white70,
-                    ),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Z-A'),
-                    selected: controller.sortOrder.value == 'z-a',
-                    onSelected: (_) => controller.sortOrder.value = 'z-a',
-                    selectedColor: const Color(0xFFE8C547),
-                    backgroundColor: const Color(0xFF3D5159),
-                    labelStyle: TextStyle(
-                      color: controller.sortOrder.value == 'z-a'
-                          ? Colors.black
-                          : Colors.white70,
-                    ),
-                  ),
-                ],
-              )),
+                    spacing: 8,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Newest'),
+                        selected: controller.sortOrder.value == 'newest',
+                        onSelected: (_) =>
+                            controller.sortOrder.value = 'newest',
+                        selectedColor: const Color(0xFFE8C547),
+                        backgroundColor: const Color(0xFF3D5159),
+                        labelStyle: TextStyle(
+                          color: controller.sortOrder.value == 'newest'
+                              ? Colors.black
+                              : Colors.white70,
+                        ),
+                      ),
+                      ChoiceChip(
+                        label: const Text('Oldest'),
+                        selected: controller.sortOrder.value == 'oldest',
+                        onSelected: (_) =>
+                            controller.sortOrder.value = 'oldest',
+                        selectedColor: const Color(0xFFE8C547),
+                        backgroundColor: const Color(0xFF3D5159),
+                        labelStyle: TextStyle(
+                          color: controller.sortOrder.value == 'oldest'
+                              ? Colors.black
+                              : Colors.white70,
+                        ),
+                      ),
+                      ChoiceChip(
+                        label: const Text('A-Z'),
+                        selected: controller.sortOrder.value == 'a-z',
+                        onSelected: (_) => controller.sortOrder.value = 'a-z',
+                        selectedColor: const Color(0xFFE8C547),
+                        backgroundColor: const Color(0xFF3D5159),
+                        labelStyle: TextStyle(
+                          color: controller.sortOrder.value == 'a-z'
+                              ? Colors.black
+                              : Colors.white70,
+                        ),
+                      ),
+                      ChoiceChip(
+                        label: const Text('Z-A'),
+                        selected: controller.sortOrder.value == 'z-a',
+                        onSelected: (_) => controller.sortOrder.value = 'z-a',
+                        selectedColor: const Color(0xFFE8C547),
+                        backgroundColor: const Color(0xFF3D5159),
+                        labelStyle: TextStyle(
+                          color: controller.sortOrder.value == 'z-a'
+                              ? Colors.black
+                              : Colors.white70,
+                        ),
+                      ),
+                    ],
+                  )),
               const SizedBox(height: 24),
               const Text('Status', style: TextStyle(color: Colors.white70)),
               const SizedBox(height: 12),
               Obx(() => Wrap(
-                spacing: 8,
-                children: [
-                  ChoiceChip(
-                    label: const Text('All'),
-                    selected: controller.filterStatus.value == 'all',
-                    onSelected: (_) => controller.filterStatus.value = 'all',
-                    selectedColor: const Color(0xFFE8C547),
-                    backgroundColor: const Color(0xFF3D5159),
-                    labelStyle: TextStyle(
-                      color: controller.filterStatus.value == 'all'
-                          ? Colors.black
-                          : Colors.white70,
-                    ),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Unread'),
-                    selected: controller.filterStatus.value == 'unread',
-                    onSelected: (_) => controller.filterStatus.value = 'unread',
-                    selectedColor: const Color(0xFFE8C547),
-                    backgroundColor: const Color(0xFF3D5159),
-                    labelStyle: TextStyle(
-                      color: controller.filterStatus.value == 'unread'
-                          ? Colors.black
-                          : Colors.white70,
-                    ),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Read'),
-                    selected: controller.filterStatus.value == 'read',
-                    onSelected: (_) => controller.filterStatus.value = 'read',
-                    selectedColor: const Color(0xFFE8C547),
-                    backgroundColor: const Color(0xFF3D5159),
-                    labelStyle: TextStyle(
-                      color: controller.filterStatus.value == 'read'
-                          ? Colors.black
-                          : Colors.white70,
-                    ),
-                  ),
-                ],
-              )),
+                    spacing: 8,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('All'),
+                        selected: controller.filterStatus.value == 'all',
+                        onSelected: (_) =>
+                            controller.filterStatus.value = 'all',
+                        selectedColor: const Color(0xFFE8C547),
+                        backgroundColor: const Color(0xFF3D5159),
+                        labelStyle: TextStyle(
+                          color: controller.filterStatus.value == 'all'
+                              ? Colors.black
+                              : Colors.white70,
+                        ),
+                      ),
+                      ChoiceChip(
+                        label: const Text('Unread'),
+                        selected: controller.filterStatus.value == 'unread',
+                        onSelected: (_) =>
+                            controller.filterStatus.value = 'unread',
+                        selectedColor: const Color(0xFFE8C547),
+                        backgroundColor: const Color(0xFF3D5159),
+                        labelStyle: TextStyle(
+                          color: controller.filterStatus.value == 'unread'
+                              ? Colors.black
+                              : Colors.white70,
+                        ),
+                      ),
+                      ChoiceChip(
+                        label: const Text('Read'),
+                        selected: controller.filterStatus.value == 'read',
+                        onSelected: (_) =>
+                            controller.filterStatus.value = 'read',
+                        selectedColor: const Color(0xFFE8C547),
+                        backgroundColor: const Color(0xFF3D5159),
+                        labelStyle: TextStyle(
+                          color: controller.filterStatus.value == 'read'
+                              ? Colors.black
+                              : Colors.white70,
+                        ),
+                      ),
+                    ],
+                  )),
               const SizedBox(height: 24),
               Row(
                 children: [

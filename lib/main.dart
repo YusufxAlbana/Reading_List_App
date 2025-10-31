@@ -60,7 +60,7 @@ class ReadingListApp extends StatelessWidget {
       darkTheme: libraryTheme,
 
       // ⬇️ SplashView jadi halaman pertama
-      home: const SplashView(),
+      home: SplashView(),
 
       // Routing GetX
       getPages: [
