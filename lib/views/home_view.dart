@@ -70,36 +70,46 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E2D34),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _bottomNavItem(Icons.home, 'Home', true),
-              _bottomNavItem(Icons.bookmark_border, 'Saved', false),
-              _bottomNavItem(Icons.explore_outlined, 'Explore', false),
-              _bottomNavItem(Icons.settings_outlined, 'Settings', false),
-            ],
-          ),
+  return Container(
+    decoration: BoxDecoration(
+      color: const Color(0xFF1E2D34),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.2),
+          blurRadius: 10,
+          offset: const Offset(0, -2),
+        ),
+      ],
+    ),
+    child: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _bottomNavItem(Icons.home, 'Home', true, () {
+              // Already on home, do nothing
+            }),
+            _bottomNavItem(Icons.bookmark_border, 'Saved', false, () {
+              _showComingSoonSnackbar('Saved Books');
+            }),
+            _bottomNavItem(Icons.explore_outlined, 'Explore', false, () {
+              _showComingSoonSnackbar('Explore');
+            }),
+            _bottomNavItem(Icons.settings_outlined, 'Settings', false, () {
+              _navigateToSettings();
+            }),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _bottomNavItem(IconData icon, String label, bool active) {
-    return Column(
+  Widget _bottomNavItem(IconData icon, String label, bool active, VoidCallback onTap) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
@@ -117,8 +127,9 @@ class HomeView extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildMobileLayout() {
     return CustomScrollView(
@@ -313,27 +324,37 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _buildLeftNav() {
-    return Container(
-      width: 70,
-      color: const Color(0xFF1E2D34),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          const Icon(Icons.local_library, color: Colors.white70, size: 30),
-          const SizedBox(height: 40),
-          _navIcon(Icons.home, true),
-          _navIcon(Icons.bookmark_border, false),
-          _navIcon(Icons.explore_outlined, false),
-          const Spacer(),
-          _navIcon(Icons.settings_outlined, false),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
+  return Container(
+    width: 70,
+    color: const Color(0xFF1E2D34),
+    child: Column(
+      children: [
+        const SizedBox(height: 20),
+        const Icon(Icons.local_library, color: Colors.white70, size: 30),
+        const SizedBox(height: 40),
+        _navIcon(Icons.home, true, () {
+          // Already on home, do nothing
+        }),
+        _navIcon(Icons.bookmark_border, false, () {
+          _showComingSoonSnackbar('Saved Books');
+        }),
+        _navIcon(Icons.explore_outlined, false, () {
+          _showComingSoonSnackbar('Explore');
+        }),
+        const Spacer(),
+        _navIcon(Icons.settings_outlined, false, () {
+          _navigateToSettings();
+        }),
+        const SizedBox(height: 20),
+      ],
+    ),
+  );
+}
 
-  Widget _navIcon(IconData icon, bool active) {
-    return Container(
+  Widget _navIcon(IconData icon, bool active, VoidCallback onTap) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -345,8 +366,9 @@ class HomeView extends StatelessWidget {
         color: active ? const Color(0xFFE8C547) : Colors.white54,
         size: 22,
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTopBar() {
     return Container(
@@ -1209,4 +1231,18 @@ class HomeView extends StatelessWidget {
       ],
     );
   }
+  void _navigateToSettings() {
+  Get.toNamed('/settings');
+}
+
+void _showComingSoonSnackbar(String feature) {
+  Get.snackbar(
+    'Coming Soon',
+    '$feature feature is under development',
+    backgroundColor: const Color(0xFFE8C547),
+    colorText: Colors.black,
+    snackPosition: SnackPosition.BOTTOM,
+    duration: const Duration(seconds: 2),
+  );
+}
 }
