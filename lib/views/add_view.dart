@@ -13,35 +13,63 @@ class AddView extends StatelessWidget {
 
   final controller = Get.find<ReadingController>();
   final titleController = TextEditingController();
-  final authorController = TextEditingController(); // ⬅️ Tambahan
-  final notesController = TextEditingController(); // ⬅️ Tambahan
+  final authorController = TextEditingController();
+  final notesController = TextEditingController();
   
   final pickedTags = <String>[].obs;
   final pickedImagePath = Rx<String?>(null);
-  final isLoading = false.obs; // ⬅️ Loading state
+  final isLoading = false.obs;
+  final currentStep = 0.obs; // ⬅️ Multi-step form
 
-  // Fungsi untuk memilih gambar dengan pilihan kamera/galeri
   Future<void> _pickImage(BuildContext context) async {
     final picker = ImagePicker();
     
-    // Tampilkan dialog pilihan
-    final source = await showDialog<ImageSource>(
+    final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Pilih Sumber Gambar'),
-        content: Column(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Galeri'),
-              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Kamera'),
-              onTap: () => Navigator.pop(context, ImageSource.camera),
+            Text(
+              'Pilih Sumber Gambar',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: _ImageSourceCard(
+                    icon: Icons.photo_library_rounded,
+                    label: 'Galeri',
+                    onTap: () => Navigator.pop(context, ImageSource.gallery),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _ImageSourceCard(
+                    icon: Icons.camera_alt_rounded,
+                    label: 'Kamera',
+                    onTap: () => Navigator.pop(context, ImageSource.camera),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
@@ -67,340 +95,685 @@ class AddView extends StatelessWidget {
     }
   }
 
-  // Fungsi untuk menghapus gambar
   void _removeImage() {
     pickedImagePath.value = null;
   }
 
-  // Validasi form
-  bool _validateForm() {
-    if (titleController.text.trim().isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Judul bacaan tidak boleh kosong',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 2),
-      );
-      return false;
+  bool _validateStep() {
+    if (currentStep.value == 0) {
+      // Step 1: Validasi gambar dan judul
+      if (titleController.text.trim().isEmpty) {
+        Get.snackbar(
+          'Oops!',
+          'Judul bacaan tidak boleh kosong',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange[700],
+          colorText: Colors.white,
+          icon: const Icon(Icons.warning_amber_rounded, color: Colors.white),
+          duration: const Duration(seconds: 2),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
+        );
+        return false;
+      }
     }
     return true;
+  }
+
+  void _nextStep() {
+    if (_validateStep()) {
+      if (currentStep.value < 1) {
+        currentStep.value++;
+      }
+    }
+  }
+
+  void _previousStep() {
+    if (currentStep.value > 0) {
+      currentStep.value--;
+    }
+  }
+
+  void _saveBook() {
+    if (_validateStep()) {
+      controller.addItem(
+        titleController.text.trim(),
+        tags: pickedTags.toList(),
+        imageUrl: pickedImagePath.value,
+      );
+      Get.back();
+      Get.snackbar(
+        'Berhasil! 🎉',
+        'Bacaan "${titleController.text.trim()}" berhasil ditambahkan',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green[600],
+        colorText: Colors.white,
+        icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Tambahkan Bacaan'),
+        title: const Text('Tambah Bacaan Baru'),
         elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header dengan gradien
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.colorScheme.primary.withOpacity(0.1),
-                    Colors.transparent,
+      body: Column(
+        children: [
+          // Progress Indicator
+          Obx(() => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  children: [
+                    _StepIndicator(
+                      isActive: currentStep.value >= 0,
+                      isCompleted: currentStep.value > 0,
+                      label: '1',
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 2,
+                        color: currentStep.value > 0
+                            ? theme.colorScheme.primary
+                            : Colors.grey[300],
+                      ),
+                    ),
+                    _StepIndicator(
+                      isActive: currentStep.value >= 1,
+                      isCompleted: false,
+                      label: '2',
+                    ),
                   ],
                 ),
+              )),
+
+          // Step Content
+          Expanded(
+            child: Obx(() => AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.1, 0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: currentStep.value == 0
+                      ? _buildStep1(context, theme, size)
+                      : _buildStep2(context, theme),
+                )),
+          ),
+
+          // Bottom Navigation
+          Obx(() => Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  child: Row(
+                    children: [
+                      if (currentStep.value > 0)
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _previousStep,
+                            icon: const Icon(Icons.arrow_back),
+                            label: const Text('Kembali'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (currentStep.value > 0) const SizedBox(width: 12),
+                      Expanded(
+                        flex: currentStep.value == 0 ? 1 : 2,
+                        child: ElevatedButton.icon(
+                          onPressed: currentStep.value == 0 ? _nextStep : _saveBook,
+                          icon: Icon(currentStep.value == 0 
+                              ? Icons.arrow_forward 
+                              : Icons.check_rounded),
+                          label: Text(
+                            currentStep.value == 0 ? 'Lanjutkan' : 'Simpan Bacaan',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep1(BuildContext context, ThemeData theme, Size size) {
+    return SingleChildScrollView(
+      key: const ValueKey('step1'),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Detail Bacaan',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tambahkan informasi dasar tentang bacaan Anda',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Image Section with Beautiful Card
+          Center(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    theme.colorScheme.primaryContainer.withOpacity(0.3),
+                    theme.colorScheme.secondaryContainer.withOpacity(0.3),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-              padding: const EdgeInsets.only(top: 20, bottom: 30),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // Gambar Sampul
-                  Stack(
-                    children: [
-                      Obx(() => AnimatedSwitcher(
+                  Obx(() => Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             child: isLoading.value
                                 ? Container(
                                     key: const ValueKey('loading'),
-                                    height: 220,
-                                    width: 160,
+                                    height: 240,
+                                    width: 170,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      borderRadius: BorderRadius.circular(12),
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: const Center(
                                       child: CircularProgressIndicator(),
                                     ),
                                   )
-                                : Hero(
-                                    tag: 'add_book_image',
-                                    child: Container(
-                                      height: 220,
-                                      width: 160,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.2),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 5),
-                                          ),
-                                        ],
-                                      ),
+                                : Container(
+                                    height: 240,
+                                    width: 170,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.3),
+                                          blurRadius: 15,
+                                          offset: const Offset(0, 8),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
                                       child: BookImageWidget(
                                         imageUrl: pickedImagePath.value,
-                                        height: 220,
-                                        width: 160,
+                                        height: 240,
+                                        width: 170,
                                       ),
                                     ),
                                   ),
-                          )),
-                      // Tombol hapus gambar
-                      Obx(() => pickedImagePath.value != null
-                          ? Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.3),
-                                      blurRadius: 4,
+                          ),
+                          if (pickedImagePath.value != null)
+                            Positioned(
+                              top: -8,
+                              right: -8,
+                              child: Material(
+                                color: Colors.red[600],
+                                shape: const CircleBorder(),
+                                elevation: 4,
+                                child: InkWell(
+                                  onTap: _removeImage,
+                                  customBorder: const CircleBorder(),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: Icon(
+                                      Icons.close_rounded,
+                                      color: Colors.white,
+                                      size: 20,
                                     ),
-                                  ],
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.white, size: 20),
-                                  onPressed: _removeImage,
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 36,
-                                    minHeight: 36,
                                   ),
                                 ),
                               ),
-                            )
-                          : const SizedBox()),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Tombol pilih gambar
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.add_photo_alternate),
-                    label: Text(pickedImagePath.value == null 
-                        ? 'Pilih Gambar Sampul' 
-                        : 'Ganti Gambar'),
+                            ),
+                        ],
+                      )),
+                  const SizedBox(height: 20),
+                  FilledButton.tonalIcon(
                     onPressed: () => _pickImage(context),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    icon: Icon(pickedImagePath.value == null
+                        ? Icons.add_photo_alternate_outlined
+                        : Icons.edit_outlined),
+                    label: Text(pickedImagePath.value == null
+                        ? 'Pilih Cover'
+                        : 'Ganti Cover'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+          ),
+          const SizedBox(height: 32),
 
-            // Form Input
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Judul
-                  Text(
-                    'Informasi Bacaan',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+          // Title Field
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: TextField(
+              controller: titleController,
+              decoration: InputDecoration(
+                labelText: 'Judul Bacaan',
+                hintText: 'Masukkan judul bacaan...',
+                prefixIcon: Icon(
+                  Icons.auto_stories_rounded,
+                  color: theme.colorScheme.primary,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.transparent,
+                contentPadding: const EdgeInsets.all(20),
+              ),
+              style: theme.textTheme.titleMedium,
+              textCapitalization: TextCapitalization.words,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Author Field
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: TextField(
+              controller: authorController,
+              decoration: InputDecoration(
+                labelText: 'Penulis (Opsional)',
+                hintText: 'Siapa penulisnya?',
+                prefixIcon: Icon(
+                  Icons.person_rounded,
+                  color: theme.colorScheme.primary,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.transparent,
+                contentPadding: const EdgeInsets.all(20),
+              ),
+              textCapitalization: TextCapitalization.words,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Notes Field
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: TextField(
+              controller: notesController,
+              decoration: InputDecoration(
+                labelText: 'Catatan (Opsional)',
+                hintText: 'Tambahkan catatan pribadi...',
+                prefixIcon: Icon(
+                  Icons.edit_note_rounded,
+                  color: theme.colorScheme.primary,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.transparent,
+                contentPadding: const EdgeInsets.all(20),
+              ),
+              maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep2(BuildContext context, ThemeData theme) {
+    return SingleChildScrollView(
+      key: const ValueKey('step2'),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Kategorikan Bacaan',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pilih kategori yang sesuai untuk bacaan Anda',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          Obx(() {
+            final tags = controller.tags;
+            if (tags.isEmpty) {
+              return Center(
+                child: Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  const SizedBox(height: 16),
-                  
-                  TextField(
-                    controller: titleController,
-                    decoration: InputDecoration(
-                      labelText: 'Judul Bacaan *',
-                      hintText: 'Masukkan judul bacaan',
-                      prefixIcon: const Icon(Icons.book),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.category_outlined,
+                        size: 64,
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
                       ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Penulis
-                  TextField(
-                    controller: authorController,
-                    decoration: InputDecoration(
-                      labelText: 'Penulis (Opsional)',
-                      hintText: 'Masukkan nama penulis',
-                      prefixIcon: const Icon(Icons.person),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Catatan
-                  TextField(
-                    controller: notesController,
-                    decoration: InputDecoration(
-                      labelText: 'Catatan (Opsional)',
-                      hintText: 'Tambahkan catatan atau deskripsi',
-                      prefixIcon: const Icon(Icons.note),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
-                    ),
-                    maxLines: 3,
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Tags Section
-                  Text(
-                    'Kategori',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  Obx(() {
-                    final tags = controller.tags;
-                    if (tags.isEmpty) {
-                      return Card(
-                        elevation: 0,
-                        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Belum ada kategori. Buat kategori dari menu (kanan atas).',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                    
-                    return Card(
-                      elevation: 0,
-                      color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: tags
-                              .map((t) => Obx(() => FilterChip(
-                                    label: Text(t),
-                                    selected: pickedTags.contains(t),
-                                    onSelected: (_) {
-                                      if (pickedTags.contains(t)) {
-                                        pickedTags.remove(t);
-                                      } else {
-                                        pickedTags.add(t);
-                                      }
-                                    },
-                                    selectedColor: theme.colorScheme.primaryContainer,
-                                    checkmarkColor: theme.colorScheme.onPrimaryContainer,
-                                    labelStyle: TextStyle(
-                                      color: pickedTags.contains(t)
-                                          ? theme.colorScheme.onPrimaryContainer
-                                          : theme.colorScheme.onSurfaceVariant,
-                                      fontWeight: pickedTags.contains(t)
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  )))
-                              .toList(),
-                        ),
-                      ),
-                    );
-                  }),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Tombol Simpan
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        if (_validateForm()) {
-                          controller.addItem(
-                            titleController.text.trim(),
-                            tags: pickedTags.toList(),
-                            imageUrl: pickedImagePath.value,
-                            // Jika controller Anda mendukung, tambahkan parameter ini
-                            // author: authorController.text.trim(),
-                            // notes: notesController.text.trim(),
-                          );
-                          Get.back();
-                          Get.snackbar(
-                            'Berhasil',
-                            'Bacaan berhasil ditambahkan',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.green,
-                            colorText: Colors.white,
-                            duration: const Duration(seconds: 2),
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.check),
-                      label: const Text(
-                        'Simpan Bacaan',
-                        style: TextStyle(
-                          fontSize: 16,
+                      const SizedBox(height: 16),
+                      Text(
+                        'Belum Ada Kategori',
+                        style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Buat kategori terlebih dahulu dari menu utama',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
+                    ],
                   ),
-                  
-                  const SizedBox(height: 20),
-                ],
+                ),
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(() => Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            theme.colorScheme.primaryContainer,
+                            theme.colorScheme.secondaryContainer,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.checklist_rounded,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${pickedTags.length} Kategori Dipilih',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.onPrimaryContainer,
+                                  ),
+                                ),
+                                if (pickedTags.isNotEmpty)
+                                  Text(
+                                    pickedTags.join(', '),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onPrimaryContainer
+                                          .withOpacity(0.8),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: tags.map((tag) {
+                    return Obx(() {
+                      final isSelected = pickedTags.contains(tag);
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        child: FilterChip(
+                          label: Text(tag),
+                          selected: isSelected,
+                          onSelected: (_) {
+                            if (isSelected) {
+                              pickedTags.remove(tag);
+                            } else {
+                              pickedTags.add(tag);
+                            }
+                          },
+                          selectedColor: theme.colorScheme.primaryContainer,
+                          checkmarkColor: theme.colorScheme.primary,
+                          backgroundColor: theme.colorScheme.surface,
+                          side: BorderSide(
+                            color: isSelected
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.outline.withOpacity(0.3),
+                            width: isSelected ? 2 : 1,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          labelStyle: TextStyle(
+                            color: isSelected
+                                ? theme.colorScheme.onPrimaryContainer
+                                : theme.colorScheme.onSurface,
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontSize: 15,
+                          ),
+                          elevation: isSelected ? 2 : 0,
+                          pressElevation: 4,
+                        ),
+                      );
+                    });
+                  }).toList(),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+// Helper Widgets
+class _StepIndicator extends StatelessWidget {
+  final bool isActive;
+  final bool isCompleted;
+  final String label;
+
+  const _StepIndicator({
+    required this.isActive,
+    required this.isCompleted,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: isCompleted || isActive
+            ? theme.colorScheme.primary
+            : Colors.grey[300],
+        shape: BoxShape.circle,
+        boxShadow: isActive
+            ? [
+                BoxShadow(
+                  color: theme.colorScheme.primary.withOpacity(0.4),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ]
+            : null,
+      ),
+      child: Center(
+        child: isCompleted
+            ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+            : Text(
+                label,
+                style: TextStyle(
+                  color: isActive ? Colors.white : Colors.grey[600],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+class _ImageSourceCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ImageSourceCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: theme.colorScheme.outline.withOpacity(0.2),
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 32,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
