@@ -688,8 +688,24 @@ class AllBooksView extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        controller.toggleStatus(item.id);
+                        final prev = item.isRead;
+                        controller.setStatus(item.id, !prev);
                         Get.back();
+                        Get.snackbar(
+                          !prev ? 'Marked Read' : 'Marked Unread',
+                          '"${item.title}" ${!prev ? 'marked as read' : 'marked as unread'}.',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: const Color(0xFF3D5159),
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 4),
+                          mainButton: TextButton(
+                            onPressed: () {
+                              controller.setStatus(item.id, prev);
+                              Get.back();
+                            },
+                            child: const Text('UNDO', style: TextStyle(color: Color(0xFFE8C547), fontWeight: FontWeight.bold)),
+                          ),
+                        );
                       },
                       icon: Icon(
                         item.isRead ? Icons.remove_done : Icons.check,

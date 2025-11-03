@@ -8,6 +8,7 @@ import 'views/add_view.dart';
 import 'views/edit_view.dart';
 import 'views/tags_view.dart';
 import 'views/all_books_view.dart';
+import 'views/read_books_view.dart';
 import 'views/splash_view.dart'; // ⬅️ Tambahkan ini
 import 'package:reading_list_app/views/settings_view.dart'; // TAMBAH INI
 void main() async {
@@ -62,6 +63,11 @@ class ReadingListApp extends StatelessWidget {
           name: '/all-books', 
           page: () => AllBooksView(),
           transition: Transition.rightToLeft
+        ),
+        GetPage(
+          name: '/read-books',
+          page: () => ReadBooksView(),
+          transition: Transition.rightToLeft,
         ),
         GetPage(
           name: '/settings', 

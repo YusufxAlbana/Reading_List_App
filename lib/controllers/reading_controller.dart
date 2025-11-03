@@ -104,6 +104,16 @@ class ReadingController extends GetxController {
     }
   }
 
+  /// Set read status explicitly. Useful for undo operations.
+  void setStatus(String id, bool read) {
+    int index = list.indexWhere((e) => e.id == id);
+    if (index != -1) {
+      list[index].isRead = read;
+      list.refresh();
+      storage.write('reading_list', list.map((e) => e.toJson()).toList());
+    }
+  }
+
   void deleteItem(String id) {
     list.removeWhere((e) => e.id == id);
     // 'ever' akan otomatis menyimpan ke storage

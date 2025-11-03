@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 
 import '../controllers/reading_controller.dart';
 import '../models/reading_item.dart';
-import 'widgets/book_image_widget.dart';
+// Note: BookImageWidget not used directly in this file
 
 class EditView extends StatelessWidget {
   EditView({super.key});
@@ -25,6 +25,7 @@ class EditView extends StatelessWidget {
   final imagePath = Rx<String?>(null);
   final isLoading = false.obs;
   final hasChanges = false.obs;
+  final isRead = false.obs;
   final currentStep = 0.obs;
 
   Future<void> _pickImage(BuildContext context) async {
@@ -309,6 +310,7 @@ class EditView extends StatelessWidget {
     titleController.text = item.title;
     pickedTags.value = List.from(item.tags);
     imagePath.value = item.imageUrl;
+  isRead.value = item.isRead;
 
     // Track changes
     titleController.addListener(() => hasChanges.value = true);
@@ -324,6 +326,36 @@ class EditView extends StatelessWidget {
           elevation: 0,
           backgroundColor: Colors.transparent,
           actions: [
+            Obx(() => IconButton(
+                  tooltip: isRead.value ? 'Tandai Belum Selesai' : 'Tandai Selesai dibaca',
+                  icon: Icon(
+                    isRead.value ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
+                    color: isRead.value ? Colors.greenAccent : null,
+                  ),
+                  onPressed: () {
+                    final prev = isRead.value;
+                    controller.setStatus(item.id, !prev);
+                    isRead.value = !prev;
+                    Get.snackbar(
+                      isRead.value ? 'Selesai' : 'Dibatalkan',
+                      isRead.value
+                          ? '"${item.title}" ditandai sebagai selesai dibaca'
+                          : 'Status selesai dibaca dibatalkan',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: isRead.value ? Colors.green[600] : Colors.orange[700],
+                      colorText: Colors.white,
+                      duration: const Duration(seconds: 4),
+                      mainButton: TextButton(
+                        onPressed: () {
+                          controller.setStatus(item.id, prev);
+                          isRead.value = prev;
+                          Get.back();
+                        },
+                        child: const Text('UNDO', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    );
+                  },
+                )),
             Obx(() => hasChanges.value
                 ? IconButton(
                     icon: const Icon(Icons.refresh_rounded),
@@ -508,13 +540,12 @@ class EditView extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (item.createdAt != null)
-                        Text(
-                          'Dibuat: ${_formatDate(item.createdAt!)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                      Text(
+                        'Dibuat: ${_formatDate(item.createdAt)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
+                      ),
                     ],
                   ),
                 ),

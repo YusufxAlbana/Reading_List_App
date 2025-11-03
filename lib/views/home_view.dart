@@ -91,7 +91,7 @@ class HomeView extends StatelessWidget {
               // Already on home, do nothing
             }),
             _bottomNavItem(Icons.bookmark_border, 'Saved', false, () {
-              _showComingSoonSnackbar('Saved Books');
+              Get.toNamed('/read-books');
             }),
             _bottomNavItem(Icons.explore_outlined, 'Explore', false, () {
               _showComingSoonSnackbar('Explore');
@@ -336,7 +336,7 @@ class HomeView extends StatelessWidget {
           // Already on home, do nothing
         }),
         _navIcon(Icons.bookmark_border, false, () {
-          _showComingSoonSnackbar('Saved Books');
+          Get.toNamed('/read-books');
         }),
         _navIcon(Icons.explore_outlined, false, () {
           _showComingSoonSnackbar('Explore');
