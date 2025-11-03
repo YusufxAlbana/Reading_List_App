@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
@@ -89,11 +91,21 @@ class EditView extends StatelessWidget {
       );
 
       if (image != null) {
-        final appDir = await getApplicationDocumentsDirectory();
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(image.path)}';
-        final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
-        
-        imagePath.value = savedImage.path;
+        if (kIsWeb) {
+          final bytes = await image.readAsBytes();
+          final b64 = base64Encode(bytes);
+          final ext = p.extension(image.name).toLowerCase();
+          String mime = 'image/png';
+          if (ext == '.jpg' || ext == '.jpeg') mime = 'image/jpeg';
+          if (ext == '.gif') mime = 'image/gif';
+          imagePath.value = 'data:$mime;base64,$b64';
+        } else {
+          final appDir = await getApplicationDocumentsDirectory();
+          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(image.path)}';
+          final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
+          imagePath.value = savedImage.path;
+        }
+
         hasChanges.value = true;
       }
       isLoading.value = false;
@@ -615,35 +627,87 @@ class EditView extends StatelessWidget {
                                                     );
                                                   },
                                                 )
-                                              : Image.file(
-                                                  File(imagePath.value!),
-                                                  height: 240,
-                                                  width: 170,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error, stackTrace) {
-                                                    return Container(
-                                                      color: Colors.grey[300],
-                                                      child: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          Icon(
-                                                            Icons.broken_image_rounded,
-                                                            size: 64,
-                                                            color: Colors.grey[400],
+                                              : (imagePath.value!.startsWith('data:')
+                                                  ? Image.memory(
+                                                      base64Decode(imagePath.value!.split(',').last),
+                                                      height: 240,
+                                                      width: 170,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (context, error, stackTrace) {
+                                                        return Container(
+                                                          color: Colors.grey[300],
+                                                          child: Column(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              Icon(
+                                                                Icons.broken_image_rounded,
+                                                                size: 64,
+                                                                color: Colors.grey[400],
+                                                              ),
+                                                              const SizedBox(height: 12),
+                                                              Text(
+                                                                'Gagal memuat',
+                                                                style: TextStyle(
+                                                                  color: Colors.grey[600],
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                          const SizedBox(height: 12),
-                                                          Text(
-                                                            'File tidak ditemukan',
-                                                            style: TextStyle(
-                                                              color: Colors.grey[600],
-                                                              fontSize: 12,
-                                                            ),
+                                                        );
+                                                      },
+                                                    )
+                                                  : (kIsWeb
+                                                      ? Container(
+                                                          color: Colors.grey[300],
+                                                          child: Column(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              Icon(
+                                                                Icons.broken_image_rounded,
+                                                                size: 64,
+                                                                color: Colors.grey[400],
+                                                              ),
+                                                              const SizedBox(height: 12),
+                                                              Text(
+                                                                'Gambar lokal tidak didukung di Web',
+                                                                style: TextStyle(
+                                                                  color: Colors.grey[600],
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                ))
+                                                        )
+                                                      : Image.file(
+                                                          File(imagePath.value!),
+                                                          height: 240,
+                                                          width: 170,
+                                                          fit: BoxFit.cover,
+                                                          errorBuilder: (context, error, stackTrace) {
+                                                            return Container(
+                                                              color: Colors.grey[300],
+                                                              child: Column(
+                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons.broken_image_rounded,
+                                                                    size: 64,
+                                                                    color: Colors.grey[400],
+                                                                  ),
+                                                                  const SizedBox(height: 12),
+                                                                  Text(
+                                                                    'File tidak ditemukan',
+                                                                    style: TextStyle(
+                                                                      color: Colors.grey[600],
+                                                                      fontSize: 12,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                          },
+                                                        ))))
                                           : Container(
                                               color: Colors.grey[300],
                                               child: Column(

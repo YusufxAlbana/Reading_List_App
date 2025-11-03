@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
@@ -85,11 +87,22 @@ class AddView extends StatelessWidget {
       );
 
       if (image != null) {
-        final appDir = await getApplicationDocumentsDirectory();
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(image.path)}';
-        final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
-        
-        pickedImagePath.value = savedImage.path;
+        if (kIsWeb) {
+          // On web we can't copy into a local file system. Convert to Data URI
+          final bytes = await image.readAsBytes();
+          final b64 = base64Encode(bytes);
+          // Try to infer mime type from extension, fallback to png
+          final ext = p.extension(image.name).toLowerCase();
+          String mime = 'image/png';
+          if (ext == '.jpg' || ext == '.jpeg') mime = 'image/jpeg';
+          if (ext == '.gif') mime = 'image/gif';
+          pickedImagePath.value = 'data:$mime;base64,$b64';
+        } else {
+          final appDir = await getApplicationDocumentsDirectory();
+          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(image.path)}';
+          final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
+          pickedImagePath.value = savedImage.path;
+        }
       }
       isLoading.value = false;
     }
