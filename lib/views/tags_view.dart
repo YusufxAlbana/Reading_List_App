@@ -117,8 +117,11 @@ class _TagListState extends State<_TagList> {
                         widget.controller.removeTags(_selected.toList());
                         final removed = _selected.toList();
                         setState(() => _selected.clear());
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('Deleted ${removed.length} tag(s)')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Deleted ${removed.length} tag(s)'),
+                          ),
+                        );
                       },
                 child: Text('Delete selected'),
               ),

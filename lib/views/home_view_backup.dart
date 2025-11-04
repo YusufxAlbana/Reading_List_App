@@ -22,101 +22,113 @@ class HomeView extends StatelessWidget {
               icon: Icon(Icons.menu),
               onPressed: () {
                 showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: colorScheme.surface,
-                    builder: (ctx) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(ctx).viewInsets.bottom,
-                          left: 16,
-                          right: 16,
-                          top: 20,
-                        ),
-                        child: SingleChildScrollView(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                maxHeight:
-                                    MediaQuery.of(ctx).size.height * 0.8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Sort',
-                                    style: theme.textTheme.titleMedium),
-                                const SizedBox(height: 8),
-                                Obx(() => Row(
-                                      children: [
-                                        ChoiceChip(
-                                          label: Text('Terbaru'),
-                                          selected:
-                                              controller.sortOrder.value ==
-                                                  'newest',
-                                          onSelected: (_) => controller
-                                              .sortOrder.value = 'newest',
-                                        ),
-                                        SizedBox(width: 8),
-                                        ChoiceChip(
-                                          label: Text('Terlama'),
-                                          selected:
-                                              controller.sortOrder.value ==
-                                                  'oldest',
-                                          onSelected: (_) => controller
-                                              .sortOrder.value = 'oldest',
-                                        ),
-                                      ],
-                                    )),
-                                const SizedBox(height: 16),
-                                Text('Filter by tags',
-                                    style: theme.textTheme.titleMedium),
-                                const SizedBox(height: 8),
-                                Obx(() {
-                                  final tags = controller.availableTags;
-                                  if (tags.isEmpty) {
-                                    return Text(
-                                        'No tags yet. Create tags below.');
-                                  }
-                                  return Wrap(
-                                    spacing: 8,
-                                    children: tags
-                                        .map((t) => FilterChip(
-                                              label: Text(t),
-                                              selected: controller.selectedTags
-                                                  .contains(t),
-                                              onSelected: (_) => controller
-                                                  .toggleSelectedTag(t),
-                                            ))
-                                        .toList(),
-                                  );
-                                }),
-                                const SizedBox(height: 16),
-                                Text('Manage tags',
-                                    style: theme.textTheme.titleMedium),
-                                const SizedBox(height: 8),
-                                Row(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: colorScheme.surface,
+                  builder: (ctx) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                        left: 16,
+                        right: 16,
+                        top: 20,
+                      ),
+                      child: SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: MediaQuery.of(ctx).size.height * 0.8,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Sort', style: theme.textTheme.titleMedium),
+                              const SizedBox(height: 8),
+                              Obx(
+                                () => Row(
                                   children: [
-                                    OutlinedButton(
-                                      onPressed: () {
-                                        Get.back(); // Tutup bottom sheet
-                                        Get.toNamed('/tags'); // Pindah halaman
-                                      },
-                                      child: Text('Open full Tag manager'),
+                                    ChoiceChip(
+                                      label: Text('Terbaru'),
+                                      selected:
+                                          controller.sortOrder.value ==
+                                          'newest',
+                                      onSelected: (_) =>
+                                          controller.sortOrder.value = 'newest',
                                     ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                        child: _TagManager( // Ini adalah baris (sekitar 106) yang error
-                                            controller: controller)),
+                                    SizedBox(width: 8),
+                                    ChoiceChip(
+                                      label: Text('Terlama'),
+                                      selected:
+                                          controller.sortOrder.value ==
+                                          'oldest',
+                                      onSelected: (_) =>
+                                          controller.sortOrder.value = 'oldest',
+                                    ),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Filter by tags',
+                                style: theme.textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Obx(() {
+                                final tags = controller.availableTags;
+                                if (tags.isEmpty) {
+                                  return Text(
+                                    'No tags yet. Create tags below.',
+                                  );
+                                }
+                                return Wrap(
+                                  spacing: 8,
+                                  children: tags
+                                      .map(
+                                        (t) => FilterChip(
+                                          label: Text(t),
+                                          selected: controller.selectedTags
+                                              .contains(t),
+                                          onSelected: (_) =>
+                                              controller.toggleSelectedTag(t),
+                                        ),
+                                      )
+                                      .toList(),
+                                );
+                              }),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Manage tags',
+                                style: theme.textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  OutlinedButton(
+                                    onPressed: () {
+                                      Get.back(); // Tutup bottom sheet
+                                      Get.toNamed('/tags'); // Pindah halaman
+                                    },
+                                    child: Text('Open full Tag manager'),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _TagManager(
+                                      // Ini adalah baris (sekitar 106) yang error
+                                      controller: controller,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                            ],
                           ),
                         ),
-                      );
-                    });
+                      ),
+                    );
+                  },
+                );
               },
-            )
+            ),
           ],
         ),
       ),
@@ -139,28 +151,30 @@ class HomeView extends StatelessWidget {
           ),
 
           // Filter buttons
-          Obx(() => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ChoiceChip(
-                    label: Text("Semua"),
-                    selected: controller.filterStatus.value == 'all',
-                    onSelected: (_) => controller.filterStatus.value = 'all',
-                  ),
-                  SizedBox(width: 8),
-                  ChoiceChip(
-                    label: Text("Belum"),
-                    selected: controller.filterStatus.value == 'unread',
-                    onSelected: (_) => controller.filterStatus.value = 'unread',
-                  ),
-                  SizedBox(width: 8),
-                  ChoiceChip(
-                    label: Text("Sudah"),
-                    selected: controller.filterStatus.value == 'read',
-                    onSelected: (_) => controller.filterStatus.value = 'read',
-                  ),
-                ],
-              )),
+          Obx(
+            () => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ChoiceChip(
+                  label: Text("Semua"),
+                  selected: controller.filterStatus.value == 'all',
+                  onSelected: (_) => controller.filterStatus.value = 'all',
+                ),
+                SizedBox(width: 8),
+                ChoiceChip(
+                  label: Text("Belum"),
+                  selected: controller.filterStatus.value == 'unread',
+                  onSelected: (_) => controller.filterStatus.value = 'unread',
+                ),
+                SizedBox(width: 8),
+                ChoiceChip(
+                  label: Text("Sudah"),
+                  selected: controller.filterStatus.value == 'read',
+                  onSelected: (_) => controller.filterStatus.value = 'read',
+                ),
+              ],
+            ),
+          ),
 
           const SizedBox(height: 8),
           Divider(indent: 16, endIndent: 16),
@@ -192,12 +206,14 @@ class HomeView extends StatelessWidget {
                             labelStyle: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
-                            backgroundColor:
-                                colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                            backgroundColor: colorScheme.surfaceContainerHighest
+                                .withOpacity(0.5),
                             padding: EdgeInsets.symmetric(horizontal: 6.0),
                             side: BorderSide.none,
-                            visualDensity:
-                                VisualDensity(horizontal: 0.0, vertical: -4),
+                            visualDensity: VisualDensity(
+                              horizontal: 0.0,
+                              vertical: -4,
+                            ),
                           );
                         }).toList(),
                       ),
@@ -214,8 +230,10 @@ class HomeView extends StatelessWidget {
                           Text(
                             item.timeAgo(),
                             style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant
-                                    .withOpacity(0.8)),
+                              color: colorScheme.onSurfaceVariant.withOpacity(
+                                0.8,
+                              ),
+                            ),
                           ),
                           if (tagWidget != null) tagWidget,
                         ],
@@ -262,7 +280,6 @@ class _TagManager extends StatefulWidget {
   State<_TagManager> createState() => _TagManagerState();
 }
 // --- AKHIR BAGIAN YANG HILANG ---
-
 
 // Ini adalah definisi State (Logika) - yang ini sudah ada sebelumnya
 class _TagManagerState extends State<_TagManager> {
@@ -315,7 +332,7 @@ class _TagManagerState extends State<_TagManager> {
                       });
                     },
                     child: Text(_deleteMode ? 'Cancel' : 'Delete tags'),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -366,8 +383,9 @@ class _TagManagerState extends State<_TagManager> {
                         onPressed: _toDelete.isEmpty
                             ? null
                             : () {
-                                widget.controller
-                                    .removeTags(_toDelete.toList());
+                                widget.controller.removeTags(
+                                  _toDelete.toList(),
+                                );
                                 setState(() {
                                   _toDelete.clear();
                                   _deleteMode = false;
