@@ -20,7 +20,7 @@ class EditView extends StatelessWidget {
   final titleController = TextEditingController();
   final authorController = TextEditingController();
   final notesController = TextEditingController();
-  
+
   final pickedTags = <String>[].obs;
   final imagePath = Rx<String?>(null);
   final isLoading = false.obs;
@@ -30,7 +30,7 @@ class EditView extends StatelessWidget {
 
   Future<void> _pickImage(BuildContext context) async {
     final picker = ImagePicker();
-    
+
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -52,9 +52,9 @@ class EditView extends StatelessWidget {
             ),
             Text(
               'Pilih Sumber Gambar',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             Row(
@@ -102,8 +102,11 @@ class EditView extends StatelessWidget {
           imagePath.value = 'data:$mime;base64,$b64';
         } else {
           final appDir = await getApplicationDocumentsDirectory();
-          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(image.path)}';
-          final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
+          final fileName =
+              '${DateTime.now().millisecondsSinceEpoch}_${p.basename(image.path)}';
+          final savedImage = await File(
+            image.path,
+          ).copy('${appDir.path}/$fileName');
           imagePath.value = savedImage.path;
         }
 
@@ -182,9 +185,7 @@ class EditView extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Get.back(result: true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red[600],
-            ),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red[600]),
             child: const Text('Keluar'),
           ),
         ],
@@ -253,9 +254,7 @@ class EditView extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Get.back(result: true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red[600],
-            ),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red[600]),
             child: const Text('Hapus'),
           ),
         ],
@@ -305,12 +304,12 @@ class EditView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     // Initialize data
     titleController.text = item.title;
     pickedTags.value = List.from(item.tags);
     imagePath.value = item.imageUrl;
-  isRead.value = item.isRead;
+    isRead.value = item.isRead;
 
     // Track changes
     titleController.addListener(() => hasChanges.value = true);
@@ -326,43 +325,59 @@ class EditView extends StatelessWidget {
           elevation: 0,
           backgroundColor: Colors.transparent,
           actions: [
-            Obx(() => IconButton(
-                  tooltip: isRead.value ? 'Tandai Belum Selesai' : 'Tandai Selesai dibaca',
-                  icon: Icon(
-                    isRead.value ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
-                    color: isRead.value ? Colors.greenAccent : null,
-                  ),
-                  onPressed: () {
-                    final prev = isRead.value;
-                    controller.setStatus(item.id, !prev);
-                    isRead.value = !prev;
-                    Get.snackbar(
-                      isRead.value ? 'Selesai' : 'Dibatalkan',
-                      isRead.value
-                          ? '"${item.title}" ditandai sebagai selesai dibaca'
-                          : 'Status selesai dibaca dibatalkan',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: isRead.value ? Colors.green[600] : Colors.orange[700],
-                      colorText: Colors.white,
-                      duration: const Duration(seconds: 4),
-                      mainButton: TextButton(
-                        onPressed: () {
-                          controller.setStatus(item.id, prev);
-                          isRead.value = prev;
-                          Get.back();
-                        },
-                        child: const Text('UNDO', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Obx(
+              () => IconButton(
+                tooltip: isRead.value
+                    ? 'Tandai Belum Selesai'
+                    : 'Tandai Selesai dibaca',
+                icon: Icon(
+                  isRead.value
+                      ? Icons.check_circle_rounded
+                      : Icons.check_circle_outline_rounded,
+                  color: isRead.value ? Colors.greenAccent : null,
+                ),
+                onPressed: () {
+                  final prev = isRead.value;
+                  controller.setStatus(item.id, !prev);
+                  isRead.value = !prev;
+                  Get.snackbar(
+                    isRead.value ? 'Selesai' : 'Dibatalkan',
+                    isRead.value
+                        ? '"${item.title}" ditandai sebagai selesai dibaca'
+                        : 'Status selesai dibaca dibatalkan',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: isRead.value
+                        ? Colors.green[600]
+                        : Colors.orange[700],
+                    colorText: Colors.white,
+                    duration: const Duration(seconds: 4),
+                    mainButton: TextButton(
+                      onPressed: () {
+                        controller.setStatus(item.id, prev);
+                        isRead.value = prev;
+                        Get.back();
+                      },
+                      child: const Text(
+                        'UNDO',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    );
-                  },
-                )),
-            Obx(() => hasChanges.value
-                ? IconButton(
-                    icon: const Icon(Icons.refresh_rounded),
-                    tooltip: 'Reset perubahan',
-                    onPressed: _resetForm,
-                  )
-                : const SizedBox()),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Obx(
+              () => hasChanges.value
+                  ? IconButton(
+                      icon: const Icon(Icons.refresh_rounded),
+                      tooltip: 'Reset perubahan',
+                      onPressed: _resetForm,
+                    )
+                  : const SizedBox(),
+            ),
             PopupMenuButton(
               icon: const Icon(Icons.more_vert_rounded),
               shape: RoundedRectangleBorder(
@@ -372,8 +387,11 @@ class EditView extends StatelessWidget {
                 PopupMenuItem(
                   child: Row(
                     children: [
-                      Icon(Icons.delete_outline_rounded, 
-                          color: Colors.red[600], size: 20),
+                      Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.red[600],
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(
                         'Hapus Bacaan',
@@ -395,100 +413,85 @@ class EditView extends StatelessWidget {
         body: Column(
           children: [
             // Progress Indicator
-            Obx(() => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    children: [
-                      _StepIndicator(
-                        isActive: currentStep.value >= 0,
-                        isCompleted: currentStep.value > 0,
-                        label: '1',
+            Obx(
+              () => Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                child: Row(
+                  children: [
+                    _StepIndicator(
+                      isActive: currentStep.value >= 0,
+                      isCompleted: currentStep.value > 0,
+                      label: '1',
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 2,
+                        color: currentStep.value > 0
+                            ? theme.colorScheme.primary
+                            : Colors.grey[300],
                       ),
-                      Expanded(
-                        child: Container(
-                          height: 2,
-                          color: currentStep.value > 0
-                              ? theme.colorScheme.primary
-                              : Colors.grey[300],
-                        ),
-                      ),
-                      _StepIndicator(
-                        isActive: currentStep.value >= 1,
-                        isCompleted: false,
-                        label: '2',
-                      ),
-                    ],
-                  ),
-                )),
+                    ),
+                    _StepIndicator(
+                      isActive: currentStep.value >= 1,
+                      isCompleted: false,
+                      label: '2',
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             // Step Content
             Expanded(
-              child: Obx(() => AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(0.1, 0),
-                            end: Offset.zero,
-                          ).animate(animation),
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: currentStep.value == 0
-                        ? _buildStep1(context, theme)
-                        : _buildStep2(context, theme),
-                  )),
+              child: Obx(
+                () => AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.1, 0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: currentStep.value == 0
+                      ? _buildStep1(context, theme)
+                      : _buildStep2(context, theme),
+                ),
+              ),
             ),
 
             // Bottom Navigation
-            Obx(() => Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, -5),
-                      ),
-                    ],
-                  ),
-                  child: SafeArea(
-                    child: Row(
-                      children: [
-                        if (currentStep.value > 0)
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _previousStep,
-                              icon: const Icon(Icons.arrow_back),
-                              label: const Text('Kembali'),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        if (currentStep.value > 0) const SizedBox(width: 12),
+            Obx(
+              () => Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  child: Row(
+                    children: [
+                      if (currentStep.value > 0)
                         Expanded(
-                          flex: currentStep.value == 0 ? 1 : 2,
-                          child: ElevatedButton.icon(
-                            onPressed: currentStep.value == 0 ? _nextStep : _saveChanges,
-                            icon: Icon(currentStep.value == 0 
-                                ? Icons.arrow_forward 
-                                : Icons.check_rounded),
-                            label: Text(
-                              currentStep.value == 0 ? 'Lanjutkan' : 'Simpan Perubahan',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
+                          child: OutlinedButton.icon(
+                            onPressed: _previousStep,
+                            icon: const Icon(Icons.arrow_back),
+                            label: const Text('Kembali'),
+                            style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -496,10 +499,40 @@ class EditView extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      if (currentStep.value > 0) const SizedBox(width: 12),
+                      Expanded(
+                        flex: currentStep.value == 0 ? 1 : 2,
+                        child: ElevatedButton.icon(
+                          onPressed: currentStep.value == 0
+                              ? _nextStep
+                              : _saveChanges,
+                          icon: Icon(
+                            currentStep.value == 0
+                                ? Icons.arrow_forward
+                                : Icons.check_rounded,
+                          ),
+                          label: Text(
+                            currentStep.value == 0
+                                ? 'Lanjutkan'
+                                : 'Simpan Perubahan',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                )),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -527,8 +560,10 @@ class EditView extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline_rounded, 
-                    color: theme.colorScheme.primary),
+                Icon(
+                  Icons.info_outline_rounded,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -593,93 +628,77 @@ class EditView extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  Obx(() => Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: isLoading.value
-                                ? Container(
-                                    key: const ValueKey('loading'),
-                                    height: 240,
-                                    width: 170,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                : Container(
-                                    key: ValueKey(imagePath.value ?? 'empty'),
-                                    height: 240,
-                                    width: 170,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.3),
-                                          blurRadius: 15,
-                                          offset: const Offset(0, 8),
-                                        ),
-                                      ],
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: imagePath.value != null
-                                          ? (imagePath.value!.startsWith('http')
+                  Obx(
+                    () => Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: isLoading.value
+                              ? Container(
+                                  key: const ValueKey('loading'),
+                                  height: 240,
+                                  width: 170,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              : Container(
+                                  key: ValueKey(imagePath.value ?? 'empty'),
+                                  height: 240,
+                                  width: 170,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.3),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: imagePath.value != null
+                                        ? (imagePath.value!.startsWith('http')
                                               ? Image.network(
                                                   imagePath.value!,
                                                   height: 240,
                                                   width: 170,
                                                   fit: BoxFit.cover,
-                                                  errorBuilder: (context, error, stackTrace) {
-                                                    return Container(
-                                                      color: Colors.grey[300],
-                                                      child: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          Icon(
-                                                            Icons.broken_image_rounded,
-                                                            size: 64,
-                                                            color: Colors.grey[400],
-                                                          ),
-                                                          const SizedBox(height: 12),
-                                                          Text(
-                                                            'Gagal memuat',
-                                                            style: TextStyle(
-                                                              color: Colors.grey[600],
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                )
-                                              : (imagePath.value!.startsWith('data:')
-                                                  ? Image.memory(
-                                                      base64Decode(imagePath.value!.split(',').last),
-                                                      height: 240,
-                                                      width: 170,
-                                                      fit: BoxFit.cover,
-                                                      errorBuilder: (context, error, stackTrace) {
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) {
                                                         return Container(
-                                                          color: Colors.grey[300],
+                                                          color:
+                                                              Colors.grey[300],
                                                           child: Column(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
                                                             children: [
                                                               Icon(
-                                                                Icons.broken_image_rounded,
+                                                                Icons
+                                                                    .broken_image_rounded,
                                                                 size: 64,
-                                                                color: Colors.grey[400],
+                                                                color: Colors
+                                                                    .grey[400],
                                                               ),
-                                                              const SizedBox(height: 12),
+                                                              const SizedBox(
+                                                                height: 12,
+                                                              ),
                                                               Text(
                                                                 'Gagal memuat',
                                                                 style: TextStyle(
-                                                                  color: Colors.grey[600],
+                                                                  color: Colors
+                                                                      .grey[600],
                                                                   fontSize: 12,
                                                                 ),
                                                               ),
@@ -687,129 +706,208 @@ class EditView extends StatelessWidget {
                                                           ),
                                                         );
                                                       },
+                                                )
+                                              : (imagePath.value!.startsWith(
+                                                      'data:',
                                                     )
-                                                  : (kIsWeb
-                                                      ? Container(
-                                                          color: Colors.grey[300],
-                                                          child: Column(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            children: [
-                                                              Icon(
-                                                                Icons.broken_image_rounded,
-                                                                size: 64,
-                                                                color: Colors.grey[400],
-                                                              ),
-                                                              const SizedBox(height: 12),
-                                                              Text(
-                                                                'Gambar lokal tidak didukung di Web',
-                                                                style: TextStyle(
-                                                                  color: Colors.grey[600],
-                                                                  fontSize: 12,
+                                                    ? Image.memory(
+                                                        base64Decode(
+                                                          imagePath.value!
+                                                              .split(',')
+                                                              .last,
+                                                        ),
+                                                        height: 240,
+                                                        width: 170,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder:
+                                                            (
+                                                              context,
+                                                              error,
+                                                              stackTrace,
+                                                            ) {
+                                                              return Container(
+                                                                color: Colors
+                                                                    .grey[300],
+                                                                child: Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Icon(
+                                                                      Icons
+                                                                          .broken_image_rounded,
+                                                                      size: 64,
+                                                                      color: Colors
+                                                                          .grey[400],
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      height:
+                                                                          12,
+                                                                    ),
+                                                                    Text(
+                                                                      'Gagal memuat',
+                                                                      style: TextStyle(
+                                                                        color: Colors
+                                                                            .grey[600],
+                                                                        fontSize:
+                                                                            12,
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        )
-                                                      : Image.file(
-                                                          File(imagePath.value!),
-                                                          height: 240,
-                                                          width: 170,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder: (context, error, stackTrace) {
-                                                            return Container(
-                                                              color: Colors.grey[300],
+                                                              );
+                                                            },
+                                                      )
+                                                    : (kIsWeb
+                                                          ? Container(
+                                                              color: Colors
+                                                                  .grey[300],
                                                               child: Column(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
                                                                 children: [
                                                                   Icon(
-                                                                    Icons.broken_image_rounded,
+                                                                    Icons
+                                                                        .broken_image_rounded,
                                                                     size: 64,
-                                                                    color: Colors.grey[400],
+                                                                    color: Colors
+                                                                        .grey[400],
                                                                   ),
-                                                                  const SizedBox(height: 12),
+                                                                  const SizedBox(
+                                                                    height: 12,
+                                                                  ),
                                                                   Text(
-                                                                    'File tidak ditemukan',
+                                                                    'Gambar lokal tidak didukung di Web',
                                                                     style: TextStyle(
-                                                                      color: Colors.grey[600],
-                                                                      fontSize: 12,
+                                                                      color: Colors
+                                                                          .grey[600],
+                                                                      fontSize:
+                                                                          12,
                                                                     ),
                                                                   ),
                                                                 ],
                                                               ),
-                                                            );
-                                                          },
-                                                        ))))
-                                          : Container(
-                                              color: Colors.grey[300],
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    Icons.auto_stories_rounded,
-                                                    size: 64,
-                                                    color: Colors.grey[400],
+                                                            )
+                                                          : Image.file(
+                                                              File(
+                                                                imagePath
+                                                                    .value!,
+                                                              ),
+                                                              height: 240,
+                                                              width: 170,
+                                                              fit: BoxFit.cover,
+                                                              errorBuilder:
+                                                                  (
+                                                                    context,
+                                                                    error,
+                                                                    stackTrace,
+                                                                  ) {
+                                                                    return Container(
+                                                                      color: Colors
+                                                                          .grey[300],
+                                                                      child: Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.center,
+                                                                        children: [
+                                                                          Icon(
+                                                                            Icons.broken_image_rounded,
+                                                                            size:
+                                                                                64,
+                                                                            color:
+                                                                                Colors.grey[400],
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height:
+                                                                                12,
+                                                                          ),
+                                                                          Text(
+                                                                            'File tidak ditemukan',
+                                                                            style: TextStyle(
+                                                                              color: Colors.grey[600],
+                                                                              fontSize: 12,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                  },
+                                                            ))))
+                                        : Container(
+                                            color: Colors.grey[300],
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.auto_stories_rounded,
+                                                  size: 64,
+                                                  color: Colors.grey[400],
+                                                ),
+                                                const SizedBox(height: 12),
+                                                Text(
+                                                  'Belum ada cover',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 12,
                                                   ),
-                                                  const SizedBox(height: 12),
-                                                  Text(
-                                                    'Belum ada cover',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[600],
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                    ),
+                                          ),
                                   ),
-                          ),
-                          if (imagePath.value != null)
-                            Positioned(
-                              top: -8,
-                              right: -8,
-                              child: Material(
-                                color: Colors.red[600],
-                                shape: const CircleBorder(),
-                                elevation: 4,
-                                child: InkWell(
-                                  onTap: _removeImage,
-                                  customBorder: const CircleBorder(),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(8),
-                                    child: Icon(
-                                      Icons.close_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
+                                ),
+                        ),
+                        if (imagePath.value != null)
+                          Positioned(
+                            top: -8,
+                            right: -8,
+                            child: Material(
+                              color: Colors.red[600],
+                              shape: const CircleBorder(),
+                              elevation: 4,
+                              child: InkWell(
+                                onTap: _removeImage,
+                                customBorder: const CircleBorder(),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8),
+                                  child: Icon(
+                                    Icons.close_rounded,
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
                                 ),
                               ),
                             ),
-                        ],
-                      )),
+                          ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   FilledButton.tonalIcon(
-  onPressed: () => _pickImage(context),
-  icon: Icon(
-    imagePath.value == null
-        ? Icons.add_photo_alternate_outlined
-        : Icons.edit_outlined,
-    color: Colors.white, // TEKS PUTIH: icon putih
-  ),
-  label: Text(
-    imagePath.value == null ? 'Pilih Cover' : 'Ganti Cover',
-    style: const TextStyle(color: Colors.white), // TEKS PUTIH: text putih
-  ),
-  style: FilledButton.styleFrom(
-    padding: const EdgeInsets.symmetric(
-      horizontal: 24,
-      vertical: 14,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-),
+                    onPressed: () => _pickImage(context),
+                    icon: Icon(
+                      imagePath.value == null
+                          ? Icons.add_photo_alternate_outlined
+                          : Icons.edit_outlined,
+                      color: Colors.white, // TEKS PUTIH: icon putih
+                    ),
+                    label: Text(
+                      imagePath.value == null ? 'Pilih Cover' : 'Ganti Cover',
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ), // TEKS PUTIH: text putih
+                    ),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -940,7 +1038,9 @@ class EditView extends StatelessWidget {
                       Icon(
                         Icons.category_outlined,
                         size: 64,
-                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                          0.5,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -966,58 +1066,60 @@ class EditView extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Obx(() => Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            theme.colorScheme.primaryContainer,
-                            theme.colorScheme.secondaryContainer,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surface,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.checklist_rounded,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${pickedTags.length} Kategori Dipilih',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: theme.colorScheme.onPrimaryContainer,
-                                  ),
-                                ),
-                                if (pickedTags.isNotEmpty)
-                                  Text(
-                                    pickedTags.join(', '),
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onPrimaryContainer
-                                          .withOpacity(0.8),
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                              ],
-                            ),
-                          ),
+                Obx(
+                  () => Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.primaryContainer,
+                          theme.colorScheme.secondaryContainer,
                         ],
                       ),
-                    )),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surface,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.checklist_rounded,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${pickedTags.length} Kategori Dipilih',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                              if (pickedTags.isNotEmpty)
+                                Text(
+                                  pickedTags.join(', '),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onPrimaryContainer
+                                        .withOpacity(0.8),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 Wrap(
                   spacing: 10,
@@ -1055,8 +1157,9 @@ class EditView extends StatelessWidget {
                             color: isSelected
                                 ? theme.colorScheme.onPrimaryContainer
                                 : theme.colorScheme.onSurface,
-                            fontWeight:
-                                isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                             fontSize: 15,
                           ),
                           elevation: isSelected ? 2 : 0,
@@ -1076,8 +1179,18 @@ class EditView extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agt',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
@@ -1098,7 +1211,7 @@ class _StepIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: 40,
@@ -1148,7 +1261,7 @@ class _ImageSourceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -1157,9 +1270,7 @@ class _ImageSourceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.primaryContainer.withOpacity(0.3),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.2),
-          ),
+          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.2)),
         ),
         child: Column(
           children: [
@@ -1169,11 +1280,7 @@ class _ImageSourceCard extends StatelessWidget {
                 color: theme.colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: theme.colorScheme.primary,
-              ),
+              child: Icon(icon, size: 32, color: theme.colorScheme.primary),
             ),
             const SizedBox(height: 12),
             Text(
