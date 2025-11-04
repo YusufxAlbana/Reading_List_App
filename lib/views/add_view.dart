@@ -339,93 +339,97 @@ class AddView extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(24),
               child: Column(
-                children: [
-                  Obx(() => Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: isLoading.value
-                                ? Container(
-                                    key: const ValueKey('loading'),
-                                    height: 240,
-                                    width: 170,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                : Container(
-                                    height: 240,
-                                    width: 170,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.3),
-                                          blurRadius: 15,
-                                          offset: const Offset(0, 8),
-                                        ),
-                                      ],
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: BookImageWidget(
-                                        imageUrl: pickedImagePath.value,
-                                        height: 240,
-                                        width: 170,
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                          if (pickedImagePath.value != null)
-                            Positioned(
-                              top: -8,
-                              right: -8,
-                              child: Material(
-                                color: Colors.red[600],
-                                shape: const CircleBorder(),
-                                elevation: 4,
-                                child: InkWell(
-                                  onTap: _removeImage,
-                                  customBorder: const CircleBorder(),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(8),
-                                    child: Icon(
-                                      Icons.close_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      )),
-                  const SizedBox(height: 20),
-                  FilledButton.tonalIcon(
-                    onPressed: () => _pickImage(context),
-                    icon: Icon(pickedImagePath.value == null
-                        ? Icons.add_photo_alternate_outlined
-                        : Icons.edit_outlined),
-                    label: Text(pickedImagePath.value == null
-                        ? 'Pilih Cover'
-                        : 'Ganti Cover'),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
+  children: [
+    Obx(() => Stack(
+      clipBehavior: Clip.none,
+      children: [
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: isLoading.value
+              ? Container(
+                  key: const ValueKey('loading'),
+                  height: 240,
+                  width: 170,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : Container(
+                  height: 240,
+                  width: 170,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: BookImageWidget(
+                      imageUrl: pickedImagePath.value,
+                      height: 240,
+                      width: 170,
                     ),
                   ),
-                ],
+                ),
+        ),
+        if (pickedImagePath.value != null)
+          Positioned(
+            top: -8,
+            right: -8,
+            child: Material(
+              color: Colors.red[600],
+              shape: const CircleBorder(),
+              elevation: 4,
+              child: InkWell(
+                onTap: _removeImage,
+                customBorder: const CircleBorder(),
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
               ),
+            ),
+          ),
+      ],
+    )),
+    const SizedBox(height: 20),
+    FilledButton.tonalIcon(
+      onPressed: () => _pickImage(context),
+      icon: Icon(
+        pickedImagePath.value == null
+            ? Icons.add_photo_alternate_outlined
+            : Icons.edit_outlined,
+        color: Colors.white, // TEKS PUTIH: icon putih
+      ),
+      label: Text(
+        pickedImagePath.value == null ? 'Pilih Cover' : 'Ganti Cover',
+        style: const TextStyle(color: Colors.white), // TEKS PUTIH: text putih
+      ),
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 14,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    ),
+  ],
+),
             ),
           ),
           const SizedBox(height: 32),
