@@ -38,10 +38,11 @@ class HomeView extends StatelessWidget {
               ],
             ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Get.toNamed('/add'),
         backgroundColor: const Color(0xFFE8C547),
-        child: const Icon(Icons.add, color: Colors.black),
+        icon: const Icon(Icons.add, color: Colors.black),
+        label: const Text('Tambah', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
       ),
       bottomNavigationBar: isMobile ? _buildBottomNav() : null,
     );
@@ -75,7 +76,7 @@ class HomeView extends StatelessWidget {
       color: const Color(0xFF1E2D34),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.2),
+          color: Colors.black.withAlpha((0.2 * 255).round()),
           blurRadius: 10,
           offset: const Offset(0, -2),
         ),
@@ -93,8 +94,8 @@ class HomeView extends StatelessWidget {
             _bottomNavItem(Icons.bookmark_border, 'Saved', false, () {
               Get.toNamed('/read-books');
             }),
-            _bottomNavItem(Icons.explore_outlined, 'Explore', false, () {
-              _showComingSoonSnackbar('Explore');
+            _bottomNavItem(Icons.explore_outlined, 'Jelajahi', false, () {
+              _showComingSoonSnackbar('Jelajahi');
             }),
             _bottomNavItem(Icons.settings_outlined, 'Settings', false, () {
               _navigateToSettings();
@@ -139,27 +140,49 @@ class HomeView extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Container(
-              height: 45,
+              height: 52,
               decoration: BoxDecoration(
-                color: const Color(0xFF3D5159),
+                color: const Color(0xFF2C3E45),
                 borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha((0.12 * 255).round()),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: TextField(
-                style: const TextStyle(color: Colors.white70, fontSize: 14),
-                decoration: const InputDecoration(
-                  hintText: 'Search books...',
-                  hintStyle: TextStyle(color: Colors.white38, fontSize: 14),
-                  prefixIcon: Icon(Icons.search, color: Colors.white38, size: 20),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search, color: Colors.white54),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        style: const TextStyle(color: Colors.white70),
+                        decoration: const InputDecoration(
+                          hintText: 'Cari bacaan...',
+                          hintStyle: TextStyle(color: Colors.white38),
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (v) => controller.searchQuery.value = v,
+                      ),
+                    ),
+                    Obx(() => controller.searchQuery.value.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.white54),
+                            onPressed: () => controller.searchQuery.value = '',
+                          )
+                        : const SizedBox.shrink()),
+                  ],
                 ),
-                onChanged: (v) => controller.searchQuery.value = v,
               ),
             ),
           ),
         ),
         
-        // Previous Reading Section
+  // Previous Reading Section
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -170,7 +193,7 @@ class HomeView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Previous Reading',
+                      'Bacaan Terakhir',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -179,8 +202,8 @@ class HomeView extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () => Get.toNamed('/all-books'),
-                      child: const Text(
-                        'View all',
+                        child: const Text(
+                          'Lihat semua',
                         style: TextStyle(color: Color(0xFFE8C547), fontSize: 13),
                       ),
                     ),
@@ -195,8 +218,8 @@ class HomeView extends StatelessWidget {
                   
                   if (books.isEmpty) {
                     return _emptyState(
-                      'No unread books',
-                      'Add your first book to get started',
+                        'Tidak ada bacaan belum selesai',
+                        'Tambahkan bacaan pertama untuk memulai',
                     );
                   }
                   
@@ -224,7 +247,7 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Categories',
+                         'Kategori',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -279,7 +302,7 @@ class HomeView extends StatelessWidget {
                     TextButton(
                       onPressed: () => Get.toNamed('/all-books'),
                       child: const Text(
-                        'View all',
+                        'Lihat semua',
                         style: TextStyle(color: Color(0xFFE8C547), fontSize: 13),
                       ),
                     ),
@@ -498,7 +521,7 @@ class HomeView extends StatelessWidget {
           final books = controller.filteredList.where((b) => !b.isRead).take(6).toList();
           
           if (books.isEmpty) {
-            return _emptyState('No unread books yet', 'Add your first book to get started');
+            return _emptyState('Belum ada bacaan belum selesai', 'Tambahkan bacaan pertama untuk memulai');
           }
           
           return SizedBox(
@@ -539,7 +562,7 @@ class HomeView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withAlpha((0.3 * 255).round()),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),
@@ -624,7 +647,7 @@ class HomeView extends StatelessWidget {
           final tags = controller.availableTags;
           
           if (tags.isEmpty) {
-            return _emptyState('No categories yet', 'Create tags to organize your books');
+            return _emptyState('Belum ada kategori', 'Buat tag untuk mengatur bacaan Anda');
           }
           
           return Wrap(
@@ -788,7 +811,7 @@ class HomeView extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => Get.toNamed('/add'),
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Add Book'),
+                    label: const Text('Tambah Bacaan'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE8C547),
                       foregroundColor: Colors.black,
@@ -1004,7 +1027,7 @@ class HomeView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withAlpha((0.25 * 255).round()),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),

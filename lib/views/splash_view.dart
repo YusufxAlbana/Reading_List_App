@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'home_view.dart'; // Pastikan import ini benar sesuai lokasi file kamu
 
 class SplashView extends StatefulWidget {
-  const SplashView({Key? key}) : super(key: key);
+  const SplashView({super.key});
 
   @override
   State<SplashView> createState() => _SplashViewState();
@@ -86,7 +86,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(25),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.amber.withOpacity(0.6),
+                        color: Colors.amber.withAlpha((0.6 * 255).round()),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),

@@ -192,8 +192,8 @@ class HomeView extends StatelessWidget {
                             labelStyle: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
-                            backgroundColor:
-                                colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              backgroundColor:
+                colorScheme.surfaceContainerHighest.withAlpha((0.5 * 255).round()),
                             padding: EdgeInsets.symmetric(horizontal: 6.0),
                             side: BorderSide.none,
                             visualDensity:
@@ -213,9 +213,9 @@ class HomeView extends StatelessWidget {
                         children: [
                           Text(
                             item.timeAgo(),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant
-                                    .withOpacity(0.8)),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant
+                  .withAlpha((0.8 * 255).round())),
                           ),
                           if (tagWidget != null) tagWidget,
                         ],
@@ -256,7 +256,7 @@ class HomeView extends StatelessWidget {
 // Ini adalah definisi Widget
 class _TagManager extends StatefulWidget {
   final ReadingController controller;
-  const _TagManager({super.key, required this.controller});
+  const _TagManager({required this.controller});
 
   @override
   State<_TagManager> createState() => _TagManagerState();

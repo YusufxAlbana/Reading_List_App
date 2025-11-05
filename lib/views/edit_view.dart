@@ -194,7 +194,7 @@ class EditView extends StatelessWidget {
     return result ?? false;
   }
 
-  void _deleteBook(BuildContext context) async {
+  void _deleteBook() async {
     final confirm = await Get.dialog<bool>(
       AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -317,6 +317,9 @@ class EditView extends StatelessWidget {
     authorController.addListener(() => hasChanges.value = true);
     notesController.addListener(() => hasChanges.value = true);
 
+    // Temporarily keep WillPopScope (deprecated) to preserve predictive back behavior.
+    // Suppress the deprecation analyzer until a careful PopScope migration is performed.
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -382,10 +385,7 @@ class EditView extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
-                    Future.delayed(
-                      const Duration(milliseconds: 100),
-                      () => _deleteBook(context),
-                    );
+                    Future.delayed(const Duration(milliseconds: 100), () => _deleteBook());
                   },
                 ),
               ],
@@ -450,7 +450,7 @@ class EditView extends StatelessWidget {
                     color: theme.colorScheme.surface,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withAlpha((0.05 * 255).round()),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -516,13 +516,13 @@ class EditView extends StatelessWidget {
           // Header with metadata
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  theme.colorScheme.tertiaryContainer.withOpacity(0.3),
-                  theme.colorScheme.secondaryContainer.withOpacity(0.3),
-                ],
-              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.tertiaryContainer.withAlpha((0.3 * 255).round()),
+                    theme.colorScheme.secondaryContainer.withAlpha((0.3 * 255).round()),
+                  ],
+                ),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -577,14 +577,14 @@ class EditView extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    theme.colorScheme.primaryContainer.withOpacity(0.3),
-                    theme.colorScheme.secondaryContainer.withOpacity(0.3),
+                    theme.colorScheme.primaryContainer.withAlpha((0.3 * 255).round()),
+                    theme.colorScheme.secondaryContainer.withAlpha((0.3 * 255).round()),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withAlpha((0.1 * 255).round()),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -619,7 +619,7 @@ class EditView extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(16),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.3),
+                                          color: Colors.black.withAlpha((0.3 * 255).round()),
                                           blurRadius: 15,
                                           offset: const Offset(0, 8),
                                         ),
@@ -815,7 +815,7 @@ class EditView extends StatelessWidget {
           // Form fields
           Container(
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
               borderRadius: BorderRadius.circular(16),
             ),
             child: TextField(
@@ -843,7 +843,7 @@ class EditView extends StatelessWidget {
 
           Container(
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
               borderRadius: BorderRadius.circular(16),
             ),
             child: TextField(
@@ -870,7 +870,7 @@ class EditView extends StatelessWidget {
 
           Container(
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
               borderRadius: BorderRadius.circular(16),
             ),
             child: TextField(
@@ -928,7 +928,7 @@ class EditView extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                    color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
@@ -936,7 +936,7 @@ class EditView extends StatelessWidget {
                       Icon(
                         Icons.category_outlined,
                         size: 64,
-                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                        color: theme.colorScheme.onSurfaceVariant.withAlpha((0.5 * 255).round()),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -1003,7 +1003,7 @@ class EditView extends StatelessWidget {
                                     pickedTags.join(', '),
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onPrimaryContainer
-                                          .withOpacity(0.8),
+                                          .withAlpha((0.8 * 255).round()),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -1040,7 +1040,7 @@ class EditView extends StatelessWidget {
                           side: BorderSide(
                             color: isSelected
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withOpacity(0.3),
+                                : theme.colorScheme.outline.withAlpha((0.3 * 255).round()),
                             width: isSelected ? 2 : 1,
                           ),
                           padding: const EdgeInsets.symmetric(
@@ -1107,7 +1107,7 @@ class _StepIndicator extends StatelessWidget {
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: theme.colorScheme.primary.withOpacity(0.4),
+                  color: theme.colorScheme.primary.withAlpha((0.4 * 255).round()),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
@@ -1151,10 +1151,10 @@ class _ImageSourceCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+          color: theme.colorScheme.primaryContainer.withAlpha((0.3 * 255).round()),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.2),
+            color: theme.colorScheme.outline.withAlpha((0.2 * 255).round()),
           ),
         ),
         child: Column(
@@ -1162,7 +1162,7 @@ class _ImageSourceCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withOpacity(0.1),
+                color: theme.colorScheme.primary.withAlpha((0.1 * 255).round()),
                 shape: BoxShape.circle,
               ),
               child: Icon(

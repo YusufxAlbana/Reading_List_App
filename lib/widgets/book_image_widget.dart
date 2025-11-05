@@ -23,12 +23,12 @@ class BookImageWidget extends StatefulWidget {
 	final ValueChanged<String?>? onImageChanged;
 
 	const BookImageWidget({
-		Key? key,
+		super.key,
 		this.imageUrl,
 		this.size = 96,
 		this.editable = true,
 		this.onImageChanged,
-	}) : super(key: key);
+	});
 
 	@override
 	State<BookImageWidget> createState() => _BookImageWidgetState();

@@ -20,7 +20,7 @@ class ReadBooksView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF2C3E45),
         elevation: 0,
-        title: const Text('Read Books', style: TextStyle(color: Colors.white)),
+        title: const Text('Bacaan Selesai', style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
@@ -47,19 +47,19 @@ class ReadBooksView extends StatelessWidget {
                         const Icon(Icons.check_circle_outline,
                             size: 72, color: Color(0xFFE8C547)),
                         const SizedBox(height: 16),
-                        const Text('No read books yet',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold)),
+            const Text('Belum ada bacaan selesai',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
-                        const Text('Mark books as read to collect them here',
-                            style: TextStyle(color: Colors.white54)),
+            const Text('Tandai bacaan sebagai selesai untuk mengumpulkannya di sini',
+              style: TextStyle(color: Colors.white54)),
                         const SizedBox(height: 24),
                         ElevatedButton.icon(
                           onPressed: () => Get.toNamed('/add'),
                           icon: const Icon(Icons.add, color: Colors.black),
-                          label: const Text('Add Book'),
+                          label: const Text('Tambah Bacaan'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFE8C547),
                             foregroundColor: Colors.black,
@@ -90,46 +90,75 @@ class ReadBooksView extends StatelessWidget {
   }
 
   Widget _bookCard(ReadingItem item) {
+    final theme = Theme.of(Get.context!);
+
     return GestureDetector(
       onTap: () => Get.toNamed('/edit', arguments: item),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF3D5159),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: BookImageWidget(
-                  imageUrl: item.imageUrl,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        elevation: 6,
+        borderRadius: BorderRadius.circular(14),
+        color: theme.colorScheme.surface,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Stack(
                   children: [
-                    Text(item.title,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 6),
-                    Text(item.timeAgo(), style: const TextStyle(color: Colors.white54, fontSize: 10)),
+                    Positioned.fill(
+                      child: BookImageWidget(
+                        imageUrl: item.imageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.transparent, Colors.black26],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: FloatingActionButton(
+                        heroTag: 'read_${item.id}',
+                        mini: true,
+                        onPressed: () {
+                          final prev = item.isRead;
+                          controller.setStatus(item.id, !prev);
+                        },
+                        backgroundColor: item.isRead ? Colors.green : Colors.black54,
+                        child: Icon(item.isRead ? Icons.remove_done : Icons.check, size: 18, color: Colors.white),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 6),
+                      Text(item.timeAgo(), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

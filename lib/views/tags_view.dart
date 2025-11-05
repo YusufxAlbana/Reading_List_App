@@ -56,7 +56,7 @@ class TagsView extends StatelessWidget {
 class _TagList extends StatefulWidget {
   final List<String> tags;
   final ReadingController controller;
-  const _TagList({super.key, required this.tags, required this.controller});
+  const _TagList({required this.tags, required this.controller});
 
   @override
   State<_TagList> createState() => _TagListState();

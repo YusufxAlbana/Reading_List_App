@@ -22,7 +22,7 @@ class AllBooksView extends StatelessWidget {
         backgroundColor: const Color(0xFF2C3E45),
         elevation: 0,
         title: const Text(
-          'All Books',
+          'Semua Bacaan',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -73,7 +73,7 @@ class AllBooksView extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: const Color(0xFFE8C547).withOpacity(0.3)),
+                            color: const Color(0xFFE8C547).withAlpha((0.3 * 255).round())),
                     ),
                     child: Column(
                       children: [
@@ -142,23 +142,17 @@ class AllBooksView extends StatelessWidget {
                   child: TextField(
                     style: const TextStyle(color: Colors.white70, fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Search books...',
-                      hintStyle:
-                          const TextStyle(color: Colors.white38, fontSize: 14),
-                      prefixIcon: const Icon(Icons.search,
-                          color: Colors.white38, size: 20),
-                      suffixIcon: Obx(() =>
-                          controller.searchQuery.value.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear,
-                                      color: Colors.white38, size: 20),
-                                  onPressed: () =>
-                                      controller.searchQuery.value = '',
-                                )
-                              : const SizedBox.shrink()),
+                      hintText: 'Cari bacaan...',
+                      hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
+                      prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 20),
+                      suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.white38, size: 20),
+                              onPressed: () => controller.searchQuery.value = '',
+                            )
+                          : const SizedBox.shrink()),
                       border: InputBorder.none,
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onChanged: (v) => controller.searchQuery.value = v,
                   ),
@@ -181,8 +175,7 @@ class AllBooksView extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color:
-                                    const Color(0xFF3D5159).withOpacity(0.5),
+                                color: const Color(0xFF3D5159).withAlpha((0.5 * 255).round()),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.menu_book,
@@ -190,7 +183,7 @@ class AllBooksView extends StatelessWidget {
                             ),
                             const SizedBox(height: 24),
                             const Text(
-                              'No books found',
+                              'Tidak ada bacaan',
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -211,7 +204,7 @@ class AllBooksView extends StatelessWidget {
                                 onPressed: () => Get.toNamed('/add'),
                                 icon:
                                     const Icon(Icons.add, color: Colors.black),
-                                label: const Text('Add Your First Book'),
+                                  label: const Text('Tambahkan Bacaan Pertama'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFE8C547),
                                   foregroundColor: Colors.black,
@@ -342,38 +335,31 @@ class AllBooksView extends StatelessWidget {
       onDismissed: (direction) {
         controller.deleteItem(item.id);
       },
-      child: _bookCard(item, index),
+                    child: _bookCard(item, index),
     );
   }
 
   Widget _bookCard(item, int index) {
+    final theme = Theme.of(Get.context!);
+
     return GestureDetector(
       onTap: () => Get.toNamed('/edit', arguments: item),
       onLongPress: () => _showBookDetails(item),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        decoration: BoxDecoration(
-          color: const Color(0xFF3D5159),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Book Cover
-            Expanded(
-              flex: 3,
-              child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(12)),
-                ),
+      child: Material(
+        elevation: 6,
+        borderRadius: BorderRadius.circular(14),
+        color: theme.colorScheme.surface,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image with subtle gradient overlay
+              Expanded(
+                flex: 3,
                 child: Stack(
                   children: [
-                    // ⬇️ PERUBAHAN DI SINI
-                    ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(12)),
+                    Positioned.fill(
                       child: BookImageWidget(
                         imageUrl: item.imageUrl,
                         fit: BoxFit.cover,
@@ -381,94 +367,104 @@ class AllBooksView extends StatelessWidget {
                         height: double.infinity,
                       ),
                     ),
-                    // ⬆️ AKHIR PERUBAHAN
-                    
-                    // Read status badge
-                    if (item.isRead)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE8C547),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black26,
                             ],
-                          ),
-                          child: const Text(
-                            'Read',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
                           ),
                         ),
                       ),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: FloatingActionButton(
+                        heroTag: 'mark_${item.id}',
+                        mini: true,
+                        onPressed: () {
+                          final prev = item.isRead;
+                          controller.setStatus(item.id, !prev);
+                          Get.snackbar(
+                            !prev ? 'Ditandai selesai' : 'Dibatalkan',
+                            !prev
+                                ? '"${item.title}" ditandai sebagai selesai dibaca'
+                                : 'Status selesai dibaca dibatalkan',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: theme.colorScheme.surface,
+                            colorText: theme.colorScheme.onSurface,
+                            duration: const Duration(seconds: 4),
+                            mainButton: TextButton(
+                              onPressed: () {
+                                controller.setStatus(item.id, prev);
+                                Get.back();
+                              },
+                              child: Text('UNDO', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                            ),
+                          );
+                        },
+                        backgroundColor: item.isRead ? Colors.green : Colors.black54,
+                        child: Icon(item.isRead ? Icons.remove_done : Icons.check, size: 18, color: Colors.white),
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 300),
+                        opacity: item.isRead ? 1.0 : 0.0,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text('Selesai', style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-            // Book Info
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+
+              // Info
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      item.timeAgo(),
-                      style:
-                          const TextStyle(color: Colors.white54, fontSize: 10),
-                    ),
-                    if (item.tags.isNotEmpty) ...[
                       const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 4,
-                        children: item.tags
-                            .take(2)
-                            .map<Widget>((tag) => Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF2C3E45),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    tag,
-                                    style: const TextStyle(
-                                      color: Color(0xFFE8C547),
-                                      fontSize: 9,
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
+                      Text(item.timeAgo(), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                      if (item.tags.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          children: item.tags.take(3).map<Widget>((tag) => Chip(
+                            label: Text(tag, style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 11)),
+                            backgroundColor: theme.colorScheme.primaryContainer,
+                            visualDensity: VisualDensity.compact,
+                          )).toList(),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

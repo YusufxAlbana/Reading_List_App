@@ -19,7 +19,7 @@ class SettingsView extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
         title: const Text(
-          'Settings',
+          'Pengaturan',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -37,11 +37,11 @@ class SettingsView extends StatelessWidget {
               const SizedBox(height: 12),
               Obx(() => _buildSettingItem(
                 icon: Icons.dark_mode,
-                title: 'Dark Mode',
-                subtitle: 'Use dark theme',
+                title: 'Mode Gelap',
+                subtitle: 'Gunakan tema gelap',
                 trailing: Switch(
                   value: settingsController.darkMode,
-                  activeColor: const Color(0xFFE8C547),
+                  activeThumbColor: const Color(0xFFE8C547),
                   onChanged: settingsController.toggleDarkMode,
                 ),
               )),
@@ -49,12 +49,12 @@ class SettingsView extends StatelessWidget {
               const SizedBox(height: 12),
               _buildSettingOption(
                 icon: Icons.palette,
-                title: 'Theme Color',
-                subtitle: 'Change accent color',
+                title: 'Warna Tema',
+                subtitle: 'Ganti warna aksen',
                 onTap: () {
                   Get.snackbar(
-                    'Coming Soon',
-                    'Theme color feature is under development',
+                    'Segera hadir',
+                    'Fitur warna tema sedang dikembangkan',
                     backgroundColor: const Color(0xFFE8C547),
                     colorText: Colors.black,
                   );
@@ -68,11 +68,11 @@ class SettingsView extends StatelessWidget {
               const SizedBox(height: 12),
               Obx(() => _buildSettingItem(
                 icon: Icons.notifications,
-                title: 'Notifications',
-                subtitle: 'Receive reading reminders',
+                title: 'Notifikasi',
+                subtitle: 'Terima pengingat bacaan',
                 trailing: Switch(
                   value: settingsController.notifications,
-                  activeColor: const Color(0xFFE8C547),
+                  activeThumbColor: const Color(0xFFE8C547),
                   onChanged: settingsController.toggleNotifications,
                 ),
               )),
@@ -80,12 +80,12 @@ class SettingsView extends StatelessWidget {
               const SizedBox(height: 12),
               _buildSettingOption(
                 icon: Icons.language,
-                title: 'Language',
-                subtitle: 'App language',
+                title: 'Bahasa',
+                subtitle: 'Bahasa aplikasi',
                 onTap: () {
                   Get.snackbar(
-                    'Coming Soon',
-                    'Language feature is under development',
+                    'Segera hadir',
+                    'Fitur bahasa sedang dikembangkan',
                     backgroundColor: const Color(0xFFE8C547),
                     colorText: Colors.black,
                   );
@@ -116,7 +116,7 @@ class SettingsView extends StatelessWidget {
               _buildSettingOption(
                 icon: Icons.delete_forever,
                 title: 'Clear All Data',
-                subtitle: 'Delete all books and settings',
+                subtitle: 'Hapus semua bacaan dan pengaturan',
                 onTap: settingsController.clearAllData,
                 isDestructive: true,
               ),
@@ -141,7 +141,7 @@ class SettingsView extends StatelessWidget {
                     children: [
                       Icon(Icons.restore, size: 20),
                       SizedBox(width: 8),
-                      Text('Reset to Default Settings'),
+                      Text('Reset ke Pengaturan Default'),
                     ],
                   ),
                 ),
@@ -244,7 +244,7 @@ class SettingsView extends StatelessWidget {
         subtitle: Text(
           subtitle,
           style: TextStyle(
-            color: isDestructive ? Colors.red.withOpacity(0.7) : Colors.white70,
+            color: isDestructive ? Colors.red.withAlpha((0.7 * 255).round()) : Colors.white70,
             fontSize: 12,
           ),
         ),
