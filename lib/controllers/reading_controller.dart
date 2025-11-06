@@ -3,14 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import '../models/reading_item.dart';
-// Hapus import 'dart:async' dan 'firebase_service'
 
 class ReadingController extends GetxController {
   final storage = GetStorage();
   final list = <ReadingItem>[].obs;
   final tags = <String>[].obs;
-
-  // Hapus semua referensi StreamSubscription dan FirebaseService
 
   // Search + Filter
   final searchQuery = ''.obs;
@@ -36,16 +33,12 @@ class ReadingController extends GetxController {
       }
     }
     
-    // Hapus _setupFirebaseSync()
-    
     // Backup ke local storage saat ada perubahan
     ever(list,
         (_) => storage.write('reading_list', list.map((e) => e.toJson()).toList()));
     ever(tags, (_) => storage.write('reading_tags', tags.toList()));
   }
   
-  // Hapus _setupFirebaseSync()
-  // Hapus onClose()
 
   List<ReadingItem> get filteredList {
     var filtered = list.where(
@@ -58,7 +51,7 @@ class ReadingController extends GetxController {
     }
 
     var result = filtered.toList();
-    // sort by createdAt or title based on sortOrder
+    // Sort
     if (sortOrder.value == 'newest') {
       result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } else if (sortOrder.value == 'oldest') {
@@ -66,10 +59,10 @@ class ReadingController extends GetxController {
     } else if (sortOrder.value == 'a-z') {
       result.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
     } else if (sortOrder.value == 'z-a') {
-      result.sort((a, b) => b.title.toLowerCase().compareTo(a.title.toLowerCase()));
+      result.sort((a, b) => b.title.toLowerCase().compareTo(b.title.toLowerCase()));
     }
 
-    // filter by selected tags
+    // Filter by selected tags
     if (selectedTags.isNotEmpty) {
       result = result
           .where((e) => e.tags.any((t) => selectedTags.contains(t)))
@@ -79,18 +72,25 @@ class ReadingController extends GetxController {
     return result;
   }
 
-  // MODIFIKASI: Tambahkan parameter imageUrl
-  void addItem(String title, {List<String>? tags, String? imageUrl}) {
+  // ✅ MEMPERBAIKI UNDEFINED NAMED PARAMETER DI addItem
+  void addItem(
+    String title, {
+    String? author, // ⬅️ DITAMBAHKAN
+    String? notes, // ⬅️ DITAMBAHKAN
+    List<String>? tags, 
+    String? imageUrl
+  }) {
     final validTags = (tags ?? []).where((t) => this.tags.contains(t)).toList();
     final item = ReadingItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), // ID unik lokal
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,
+        author: author, // ⬅️ Digunakan
+        notes: notes,  // ⬅️ Digunakan
         createdAt: DateTime.now(),
         tags: validTags,
-        imageUrl: imageUrl); // Simpan imageUrl
+        imageUrl: imageUrl); 
     
     list.add(item);
-    // 'ever' akan otomatis menyimpan ke storage
   }
 
   void toggleStatus(String id) {
@@ -98,9 +98,7 @@ class ReadingController extends GetxController {
     if (index != -1) {
       list[index].isRead = !list[index].isRead;
       
-      // Refresh local dan simpan
       list.refresh();
-      storage.write('reading_list', list.map((e) => e.toJson()).toList());
     }
   }
 
@@ -110,30 +108,40 @@ class ReadingController extends GetxController {
     if (index != -1) {
       list[index].isRead = read;
       list.refresh();
-      storage.write('reading_list', list.map((e) => e.toJson()).toList());
     }
   }
 
   void deleteItem(String id) {
     list.removeWhere((e) => e.id == id);
-    // 'ever' akan otomatis menyimpan ke storage
   }
 
-  // MODIFIKASI: Tambahkan parameter imageUrl
-  void updateItem(String id, String title, {List<String>? tags, String? imageUrl}) {
+  // ✅ MEMPERBAIKI UNDEFINED NAMED PARAMETER DI updateItem
+  void updateItem(
+    String id, 
+    String title, {
+    String? author, // ⬅️ DITAMBAHKAN
+    String? notes, // ⬅️ DITAMBAHKAN
+    List<String>? tags, 
+    String? imageUrl
+  }) {
     int index = list.indexWhere((e) => e.id == id);
-    if (index != -1) { // Perbaikan: Pastikan index ditemukan
+    if (index != -1) {
       list[index].title = title;
+      
+      // ✅ MEMPERBAIKI UNDEFINED SETTER: 
+      // Mengubah nilai properti 'author' dan 'notes'. 
+      // Ini membutuhkan properti tersebut di 'ReadingItem' agar TIDAK 'final'.
+      list[index].author = author; // ⬅️ Setter dipanggil
+      list[index].notes = notes;   // ⬅️ Setter dipanggil
+
       if (tags != null) {
         list[index].tags = tags.where((t) => this.tags.contains(t)).toList();
       }
-      // Tambahkan update imageUrl
       if (imageUrl != null) {
         list[index].imageUrl = imageUrl;
       }
       
       list.refresh();
-      // 'ever' akan otomatis menyimpan ke storage
     }
   }
 
@@ -154,7 +162,6 @@ class ReadingController extends GetxController {
     if (t.isEmpty) return;
     if (!tags.contains(t)) {
       tags.add(t);
-      // 'ever' akan otomatis menyimpan ke storage
     }
   }
 
@@ -165,7 +172,7 @@ class ReadingController extends GetxController {
         item.tags.remove(tag);
       }
     }
-    list.refresh(); // Refresh list untuk memicu penyimpanan 'ever'
+    list.refresh();
   }
 
   void removeTags(List<String> removed) {
@@ -175,7 +182,7 @@ class ReadingController extends GetxController {
     for (var item in list) {
       item.tags.removeWhere((t) => removed.contains(t));
     }
-    list.refresh(); // Refresh list untuk memicu penyimpanan 'ever'
+    list.refresh();
   }
 
   Color get selectedColor => Colors.white; 

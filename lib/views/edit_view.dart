@@ -9,7 +9,154 @@ import 'package:path/path.dart' as p;
 
 import '../controllers/reading_controller.dart';
 import '../models/reading_item.dart';
-// Note: BookImageWidget not used directly in this file
+
+// Helper widget for displaying the book cover image
+Widget _buildBookImage(String? imagePath) {
+  if (imagePath == null) {
+    return _buildImagePlaceholder();
+  } else if (kIsWeb && imagePath.startsWith('data:')) {
+    // Web: Base64
+    final base64String = imagePath.split(',').last;
+    return Image.memory(
+      base64Decode(base64String),
+      fit: BoxFit.cover,
+      height: 240,
+      width: 170,
+    );
+  } else if (!kIsWeb && File(imagePath).existsSync()) {
+    // Mobile: File path
+    return Image.file(
+      File(imagePath),
+      fit: BoxFit.cover,
+      height: 240,
+      width: 170,
+    );
+  } else {
+    // Fallback/Web Path/URL
+    return _buildImagePlaceholder();
+  }
+}
+
+// Helper widget for placeholder (with optional loading state)
+Widget _buildImagePlaceholder({bool isLoad = false}) {
+  return Container(
+    height: 240,
+    width: 170,
+    decoration: BoxDecoration(
+      color: Colors.grey[200],
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: Colors.grey[300]!, width: 1),
+    ),
+    child: isLoad
+        ? Center(
+            child: CircularProgressIndicator(
+              color: Colors.grey[600],
+            ),
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.image_not_supported_rounded, color: Colors.grey[500], size: 48),
+              const SizedBox(height: 8),
+              Text(
+                'Tidak ada Cover',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
+            ],
+          ),
+  );
+}
+
+// Helper widget for image source selection card
+class _ImageSourceCard extends StatelessWidget {
+  const _ImageSourceCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
+          borderRadius: BorderRadius.circular(16),
+          // ✅ PERBAIKAN: Mengganti withOpacity dengan withAlpha
+          border: Border.all(color: theme.colorScheme.outlineVariant.withAlpha((0.5 * 255).round())), 
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 40,
+              color: theme.colorScheme.primary,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: theme.textTheme.titleMedium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Helper widget for step indicator
+class _StepIndicator extends StatelessWidget {
+  final bool isActive;
+  final bool isCompleted;
+  final String label;
+
+  const _StepIndicator({
+    required this.isActive,
+    required this.isCompleted,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        color: isCompleted
+            ? theme.colorScheme.primary
+            : isActive
+                ? theme.colorScheme.primaryContainer
+                : Colors.grey[300],
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: isCompleted
+            ? const Icon(Icons.check_rounded, color: Colors.white, size: 18)
+            : Text(
+                label,
+                style: TextStyle(
+                  color: isActive
+                      ? theme.colorScheme.onPrimaryContainer
+                      : Colors.grey[600],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+// --- Main EditView Class ---
 
 class EditView extends StatelessWidget {
   EditView({super.key});
@@ -17,16 +164,20 @@ class EditView extends StatelessWidget {
   final controller = Get.find<ReadingController>();
   final ReadingItem item = Get.arguments;
 
+  // State Variables
   final titleController = TextEditingController();
   final authorController = TextEditingController();
   final notesController = TextEditingController();
   
+  // GetX Observables (Rx variables)
   final pickedTags = <String>[].obs;
   final imagePath = Rx<String?>(null);
   final isLoading = false.obs;
   final hasChanges = false.obs;
   final isRead = false.obs;
   final currentStep = 0.obs;
+
+  // --- Fungsi Utama ---
 
   Future<void> _pickImage(BuildContext context) async {
     final picker = ImagePicker();
@@ -120,6 +271,9 @@ class EditView extends StatelessWidget {
 
   void _resetForm() {
     titleController.text = item.title;
+    authorController.text = item.author ?? ''; 
+    notesController.text = item.notes ?? ''; 
+    
     pickedTags.value = List.from(item.tags);
     imagePath.value = item.imageUrl;
     hasChanges.value = false;
@@ -284,6 +438,8 @@ class EditView extends StatelessWidget {
       controller.updateItem(
         item.id,
         titleController.text.trim(),
+        author: authorController.text.trim(), 
+        notes: notesController.text.trim(),   
         tags: pickedTags.toList(),
         imageUrl: imagePath.value,
       );
@@ -302,22 +458,34 @@ class EditView extends StatelessWidget {
     }
   }
 
+  // Helper untuk format tanggal
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+  }
+
+  // --- Widget Build ---
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    // Initialize data
-    titleController.text = item.title;
-    pickedTags.value = List.from(item.tags);
-    imagePath.value = item.imageUrl;
-  isRead.value = item.isRead;
+    // Inisialisasi data awal hanya jika controller kosong untuk menghindari loop rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (titleController.text.isEmpty && item.title.isNotEmpty) {
+        titleController.text = item.title;
+        authorController.text = item.author ?? '';
+        notesController.text = item.notes ?? '';
+        pickedTags.value = List.from(item.tags);
+        imagePath.value = item.imageUrl;
+        isRead.value = item.isRead;
+      }
+    });
 
     // Track changes
     titleController.addListener(() => hasChanges.value = true);
     authorController.addListener(() => hasChanges.value = true);
     notesController.addListener(() => hasChanges.value = true);
 
-    // Temporarily keep WillPopScope (deprecated) to preserve predictive back behavior.
     // Suppress the deprecation analyzer until a careful PopScope migration is performed.
     // ignore: deprecated_member_use
     return WillPopScope(
@@ -426,11 +594,13 @@ class EditView extends StatelessWidget {
               child: Obx(() => AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     transitionBuilder: (child, animation) {
+                      // Menggunakan pergeseran horizontal (default)
                       return FadeTransition(
                         opacity: animation,
                         child: SlideTransition(
                           position: Tween<Offset>(
-                            begin: const Offset(0.1, 0),
+                            // Menyesuaikan arah slide agar terasa seperti perpindahan langkah
+                            begin: currentStep.value == 0 ? const Offset(-0.1, 0) : const Offset(0.1, 0),
                             end: Offset.zero,
                           ).animate(animation),
                           child: child,
@@ -450,7 +620,8 @@ class EditView extends StatelessWidget {
                     color: theme.colorScheme.surface,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha((0.05 * 255).round()),
+                        // ✅ PERBAIKAN: Mengganti withAlpha pada shadow
+                        color: Colors.black.withAlpha((0.05 * 255).round()), 
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -505,6 +676,8 @@ class EditView extends StatelessWidget {
       ),
     );
   }
+
+  // --- Widget _buildStep1 (Detail & Input) ---
 
   Widget _buildStep1(BuildContext context, ThemeData theme) {
     return SingleChildScrollView(
@@ -599,18 +772,7 @@ class EditView extends StatelessWidget {
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             child: isLoading.value
-                                ? Container(
-                                    key: const ValueKey('loading'),
-                                    height: 240,
-                                    width: 170,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
+                                ? _buildImagePlaceholder(isLoad: true)
                                 : Container(
                                     key: ValueKey(imagePath.value ?? 'empty'),
                                     height: 240,
@@ -619,6 +781,7 @@ class EditView extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(16),
                                       boxShadow: [
                                         BoxShadow(
+                                          // ✅ PERBAIKAN: Mengganti withAlpha pada shadow
                                           color: Colors.black.withAlpha((0.3 * 255).round()),
                                           blurRadius: 15,
                                           offset: const Offset(0, 8),
@@ -627,139 +790,7 @@ class EditView extends StatelessWidget {
                                     ),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(16),
-                                      child: imagePath.value != null
-                                          ? (imagePath.value!.startsWith('http')
-                                              ? Image.network(
-                                                  imagePath.value!,
-                                                  height: 240,
-                                                  width: 170,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error, stackTrace) {
-                                                    return Container(
-                                                      color: Colors.grey[300],
-                                                      child: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          Icon(
-                                                            Icons.broken_image_rounded,
-                                                            size: 64,
-                                                            color: Colors.grey[400],
-                                                          ),
-                                                          const SizedBox(height: 12),
-                                                          Text(
-                                                            'Gagal memuat',
-                                                            style: TextStyle(
-                                                              color: Colors.grey[600],
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                )
-                                              : (imagePath.value!.startsWith('data:')
-                                                  ? Image.memory(
-                                                      base64Decode(imagePath.value!.split(',').last),
-                                                      height: 240,
-                                                      width: 170,
-                                                      fit: BoxFit.cover,
-                                                      errorBuilder: (context, error, stackTrace) {
-                                                        return Container(
-                                                          color: Colors.grey[300],
-                                                          child: Column(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            children: [
-                                                              Icon(
-                                                                Icons.broken_image_rounded,
-                                                                size: 64,
-                                                                color: Colors.grey[400],
-                                                              ),
-                                                              const SizedBox(height: 12),
-                                                              Text(
-                                                                'Gagal memuat',
-                                                                style: TextStyle(
-                                                                  color: Colors.grey[600],
-                                                                  fontSize: 12,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        );
-                                                      },
-                                                    )
-                                                  : (kIsWeb
-                                                      ? Container(
-                                                          color: Colors.grey[300],
-                                                          child: Column(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            children: [
-                                                              Icon(
-                                                                Icons.broken_image_rounded,
-                                                                size: 64,
-                                                                color: Colors.grey[400],
-                                                              ),
-                                                              const SizedBox(height: 12),
-                                                              Text(
-                                                                'Gambar lokal tidak didukung di Web',
-                                                                style: TextStyle(
-                                                                  color: Colors.grey[600],
-                                                                  fontSize: 12,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        )
-                                                      : Image.file(
-                                                          File(imagePath.value!),
-                                                          height: 240,
-                                                          width: 170,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder: (context, error, stackTrace) {
-                                                            return Container(
-                                                              color: Colors.grey[300],
-                                                              child: Column(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                children: [
-                                                                  Icon(
-                                                                    Icons.broken_image_rounded,
-                                                                    size: 64,
-                                                                    color: Colors.grey[400],
-                                                                  ),
-                                                                  const SizedBox(height: 12),
-                                                                  Text(
-                                                                    'File tidak ditemukan',
-                                                                    style: TextStyle(
-                                                                      color: Colors.grey[600],
-                                                                      fontSize: 12,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            );
-                                                          },
-                                                        ))))
-                                          : Container(
-                                              color: Colors.grey[300],
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    Icons.auto_stories_rounded,
-                                                    size: 64,
-                                                    color: Colors.grey[400],
-                                                  ),
-                                                  const SizedBox(height: 12),
-                                                  Text(
-                                                    'Belum ada cover',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[600],
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                      child: _buildBookImage(imagePath.value),
                                     ),
                                   ),
                           ),
@@ -812,7 +843,7 @@ class EditView extends StatelessWidget {
           ),
           const SizedBox(height: 32),
 
-          // Form fields
+          // Title Field 
           Container(
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
@@ -841,6 +872,7 @@ class EditView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
+          // Penulis Field
           Container(
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
@@ -868,6 +900,7 @@ class EditView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
+          // Catatan Field
           Container(
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
@@ -898,6 +931,8 @@ class EditView extends StatelessWidget {
       ),
     );
   }
+
+  // --- Widget _buildStep2 (Kategorisasi Bacaan) ---
 
   Widget _buildStep2(BuildContext context, ThemeData theme) {
     return SingleChildScrollView(
@@ -1027,21 +1062,40 @@ class EditView extends StatelessWidget {
                           label: Text(tag),
                           selected: isSelected,
                           onSelected: (_) {
+                            hasChanges.value = true; 
                             if (isSelected) {
                               pickedTags.remove(tag);
                             } else {
                               pickedTags.add(tag);
                             }
-                            hasChanges.value = true;
                           },
-                          selectedColor: theme.colorScheme.primaryContainer,
-                          checkmarkColor: theme.colorScheme.primary,
+                          // 🎨 Ikon Lingkaran Putih Tanpa Shadow
+                          avatar: isSelected
+                              ? Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white, 
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.check_rounded,
+                                    color: theme.colorScheme.primary, 
+                                    size: 20, 
+                                  ),
+                                )
+                              : null,
+                          
+                          checkmarkColor: Colors.transparent, 
+                          // ✅ PERBAIKAN: Mengganti withOpacity dengan withAlpha
+                          selectedColor: theme.colorScheme.primary.withAlpha((0.8 * 255).round()),
                           backgroundColor: theme.colorScheme.surface,
                           side: BorderSide(
                             color: isSelected
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withAlpha((0.3 * 255).round()),
-                            width: isSelected ? 2 : 1,
+                              ? theme.colorScheme.primary
+                              // ✅ PERBAIKAN: Mengganti withOpacity dengan withAlpha
+                              : theme.colorScheme.outline.withAlpha((0.3 * 255).round()),
+                            width: 1.0, 
                           ),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -1049,14 +1103,13 @@ class EditView extends StatelessWidget {
                           ),
                           labelStyle: TextStyle(
                             color: isSelected
-                                ? theme.colorScheme.onPrimaryContainer
+                                ? theme.colorScheme.onPrimary 
                                 : theme.colorScheme.onSurface,
-                            fontWeight:
-                                isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: FontWeight.w500, 
                             fontSize: 15,
                           ),
-                          elevation: isSelected ? 2 : 0,
-                          pressElevation: 4,
+                          elevation: 0, 
+                          pressElevation: 0, 
                         ),
                       );
                     });
@@ -1066,120 +1119,6 @@ class EditView extends StatelessWidget {
             );
           }),
         ],
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
-  }
-}
-
-// Helper Widgets
-class _StepIndicator extends StatelessWidget {
-  final bool isActive;
-  final bool isCompleted;
-  final String label;
-
-  const _StepIndicator({
-    required this.isActive,
-    required this.isCompleted,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: isCompleted || isActive
-            ? theme.colorScheme.primary
-            : Colors.grey[300],
-        shape: BoxShape.circle,
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: theme.colorScheme.primary.withAlpha((0.4 * 255).round()),
-                  blurRadius: 8,
-                  spreadRadius: 2,
-                ),
-              ]
-            : null,
-      ),
-      child: Center(
-        child: isCompleted
-            ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
-            : Text(
-                label,
-                style: TextStyle(
-                  color: isActive ? Colors.white : Colors.grey[600],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-      ),
-    );
-  }
-}
-
-class _ImageSourceCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _ImageSourceCard({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.primaryContainer.withAlpha((0.3 * 255).round()),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.colorScheme.outline.withAlpha((0.2 * 255).round()),
-          ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withAlpha((0.1 * 255).round()),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -5,6 +5,10 @@ class ReadingItem {
   DateTime createdAt;
   List<String> tags;
   String? imageUrl;
+  
+  // ✅ Properti Baru yang DITAMBAHKAN
+  String? author; 
+  String? notes;
 
   ReadingItem({
     required this.id,
@@ -13,6 +17,8 @@ class ReadingItem {
     DateTime? createdAt,
     List<String>? tags,
     this.imageUrl,
+    this.author, // ⬅️ Masuk ke constructor
+    this.notes,  // ⬅️ Masuk ke constructor
   })  : createdAt = createdAt ?? DateTime.now(),
         tags = tags ?? const [];
 
@@ -47,6 +53,9 @@ class ReadingItem {
       createdAt: parsed,
       tags: parsedTags,
       imageUrl: json['imageUrl'],
+      // ✅ Parsing data baru dari JSON
+      author: json['author'], 
+      notes: json['notes'],
     );
   }
 
@@ -58,6 +67,9 @@ class ReadingItem {
       'createdAt': createdAt.toIso8601String(),
       'tags': tags,
       'imageUrl': imageUrl,
+      // ✅ Menambahkan data baru ke JSON
+      'author': author, 
+      'notes': notes,
     };
   }
 

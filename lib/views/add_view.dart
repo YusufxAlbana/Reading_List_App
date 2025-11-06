@@ -10,9 +10,13 @@ import 'package:path/path.dart' as p;
 import '../controllers/reading_controller.dart';
 import 'widgets/book_image_widget.dart';
 
+// Asumsi: Anda sudah memiliki BookImageWidget di path 'widgets/book_image_widget.dart'
+// Asumsi: Anda sudah memiliki ReadingController di path '../controllers/reading_controller.dart'
+
 class AddView extends StatelessWidget {
   AddView({super.key});
 
+  // Deklarasi Controller dan State
   final controller = Get.find<ReadingController>();
   final titleController = TextEditingController();
   final authorController = TextEditingController();
@@ -22,6 +26,8 @@ class AddView extends StatelessWidget {
   final pickedImagePath = Rx<String?>(null);
   final isLoading = false.obs;
   final currentStep = 0.obs; // ⬅️ Multi-step form
+
+  // --- Fungsi Utama ---
 
   Future<void> _pickImage(BuildContext context) async {
     final picker = ImagePicker();
@@ -98,6 +104,7 @@ class AddView extends StatelessWidget {
           if (ext == '.gif') mime = 'image/gif';
           pickedImagePath.value = 'data:$mime;base64,$b64';
         } else {
+          // Simpan ke direktori aplikasi pada platform mobile
           final appDir = await getApplicationDocumentsDirectory();
           final fileName = '${DateTime.now().millisecondsSinceEpoch}_${p.basename(image.path)}';
           final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
@@ -114,7 +121,7 @@ class AddView extends StatelessWidget {
 
   bool _validateStep() {
     if (currentStep.value == 0) {
-      // Step 1: Validasi gambar dan judul
+      // Step 1: Validasi judul
       if (titleController.text.trim().isEmpty) {
         Get.snackbar(
           'Oops!',
@@ -149,8 +156,11 @@ class AddView extends StatelessWidget {
 
   void _saveBook() {
     if (_validateStep()) {
+      // Menambahkan author dan notes ke dalam model (asumsi controller mendukung ini)
       controller.addItem(
         titleController.text.trim(),
+        author: authorController.text.trim(), // Tambahan
+        notes: notesController.text.trim(), // Tambahan
         tags: pickedTags.toList(),
         imageUrl: pickedImagePath.value,
       );
@@ -168,6 +178,8 @@ class AddView extends StatelessWidget {
       );
     }
   }
+
+  // --- Build Method Utama ---
 
   @override
   Widget build(BuildContext context) {
@@ -215,11 +227,16 @@ class AddView extends StatelessWidget {
             child: Obx(() => AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   transitionBuilder: (child, animation) {
+                    // Menggunakan key untuk membedakan widget
+                    final isStep1 = child.key == const ValueKey('step1');
+                    // Atur arah slide berdasarkan transisi maju/mundur
+                    final beginOffset = currentStep.value == 1 && isStep1 ? const Offset(-0.1, 0) : const Offset(0.1, 0);
+
                     return FadeTransition(
                       opacity: animation,
                       child: SlideTransition(
                         position: Tween<Offset>(
-                          begin: const Offset(0.1, 0),
+                          begin: beginOffset,
                           end: Offset.zero,
                         ).animate(animation),
                         child: child,
@@ -293,6 +310,8 @@ class AddView extends StatelessWidget {
       ),
     );
   }
+
+  // --- Konten Step 1 ---
 
   Widget _buildStep1(BuildContext context, ThemeData theme, Size size) {
     return SingleChildScrollView(
@@ -519,6 +538,8 @@ class AddView extends StatelessWidget {
     );
   }
 
+  // --- Konten Step 2 (MODIFIKASI IKON DI SINI) ---
+
   Widget _buildStep2(BuildContext context, ThemeData theme) {
     return SingleChildScrollView(
       key: const ValueKey('step2'),
@@ -542,7 +563,7 @@ class AddView extends StatelessWidget {
           const SizedBox(height: 24),
 
           Obx(() {
-            final tags = controller.tags;
+            final tags = controller.tags; // Asumsi controller.tags adalah RxList<String> atau List<String>
             if (tags.isEmpty) {
               return Center(
                 child: Container(
@@ -653,14 +674,40 @@ class AddView extends StatelessWidget {
                               pickedTags.add(tag);
                             }
                           },
+                          // 🎨 IMPLEMENTASI IKON CENTANG BULAT DENGAN SHADOW
+                          avatar: isSelected
+                              ? Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary, // Background Bulat
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: theme.colorScheme.primary.withAlpha((0.5 * 255).round()),
+                                        blurRadius: 4,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.check_rounded, // Ikon Centang
+                                    color: Colors.white, 
+                                    size: 16,
+                                  ),
+                                )
+                              : null, // Kosong jika tidak dipilih
+                          
+                          // Menonaktifkan checkmark bawaan FilterChip saat avatar kustom digunakan
+                          checkmarkColor: Colors.transparent, 
+                          
                           selectedColor: theme.colorScheme.primaryContainer,
-                          checkmarkColor: theme.colorScheme.primary,
                           backgroundColor: theme.colorScheme.surface,
               side: BorderSide(
               color: isSelected
                 ? theme.colorScheme.primary
                 : theme.colorScheme.outline.withAlpha((0.3 * 255).round()),
-                            width: isSelected ? 2 : 1,
+                            // Kunci: Pertahankan lebar border 1.0 agar tidak ada reflow aneh
+                            width: 1.0, 
                           ),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -670,12 +717,12 @@ class AddView extends StatelessWidget {
                             color: isSelected
                                 ? theme.colorScheme.onPrimaryContainer
                                 : theme.colorScheme.onSurface,
-                            fontWeight:
-                                isSelected ? FontWeight.bold : FontWeight.normal,
+                            // Set font weight konsisten untuk meminimalisir reflow
+                            fontWeight: FontWeight.w500, 
                             fontSize: 15,
                           ),
-                          elevation: isSelected ? 2 : 0,
-                          pressElevation: 4,
+                          elevation: 0, // Set elevation ke 0
+                          pressElevation: 0, // Set pressElevation ke 0
                         ),
                       );
                     });
@@ -690,7 +737,8 @@ class AddView extends StatelessWidget {
   }
 }
 
-// Helper Widgets
+// --- Helper Widgets ---
+
 class _StepIndicator extends StatelessWidget {
   final bool isActive;
   final bool isCompleted;
