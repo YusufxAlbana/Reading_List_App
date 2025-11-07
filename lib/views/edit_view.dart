@@ -535,7 +535,7 @@ class EditView extends StatelessWidget {
                   )
                 : const SizedBox()),
             PopupMenuButton(
-              icon: const Icon(Icons.more_vert_rounded),
+              icon: Icon(Icons.delete_outline_rounded, color: Colors.red[600]),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -821,12 +821,18 @@ class EditView extends StatelessWidget {
                   const SizedBox(height: 20),
                   FilledButton.tonalIcon(
                     onPressed: () => _pickImage(context),
-                    icon: Icon(imagePath.value == null
-                        ? Icons.add_photo_alternate_outlined
-                        : Icons.edit_outlined),
-                    label: Text(imagePath.value == null
-                        ? 'Pilih Cover'
-                        : 'Ganti Cover'),
+                    icon: Icon(
+                      imagePath.value == null
+                          ? Icons.add_photo_alternate_outlined
+                          : Icons.edit_outlined,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      imagePath.value == null
+                          ? 'Pilih Cover'
+                          : 'Ganti Cover',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
