@@ -2,12 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/reading_item.dart';
 
 class ReadingController extends GetxController {
   final storage = GetStorage();
+  final firestore = FirebaseFirestore.instance;
   final list = <ReadingItem>[].obs;
   final tags = <String>[].obs;
+  final isLoading = false.obs;
 
   // Search + Filter
   final searchQuery = ''.obs;
@@ -18,25 +21,52 @@ class ReadingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
-    // Load dari local storage
-    List? stored = storage.read('reading_list');
-    if (stored != null) {
-      list.assignAll(stored.map((e) => ReadingItem.fromJson(e)));
-    }
-    List? storedTags = storage.read('reading_tags');
-    if (storedTags != null) {
-      try {
-        tags.assignAll(List<String>.from(storedTags));
-      } catch (_) {
-        tags.assignAll(storedTags.map((e) => e.toString()).toList());
-      }
-    }
+    loadFromFirestore();
     
     // Backup ke local storage saat ada perubahan
     ever(list,
         (_) => storage.write('reading_list', list.map((e) => e.toJson()).toList()));
     ever(tags, (_) => storage.write('reading_tags', tags.toList()));
+  }
+  
+  // Load data dari Firestore
+  Future<void> loadFromFirestore() async {
+    try {
+      isLoading.value = true;
+      
+      // Load books
+      final booksSnapshot = await firestore.collection('books').get();
+      final books = booksSnapshot.docs
+          .map((doc) => ReadingItem.fromJson({...doc.data(), 'id': doc.id}))
+          .toList();
+      list.assignAll(books);
+      
+      // Load tags
+      final tagsSnapshot = await firestore.collection('tags').get();
+      final loadedTags = tagsSnapshot.docs
+          .map((doc) => doc.data()['name'] as String)
+          .toList();
+      tags.assignAll(loadedTags);
+      
+      print('✅ Data berhasil dimuat dari Firestore: ${books.length} buku');
+    } catch (e) {
+      print('❌ Error loading from Firestore: $e');
+      // Fallback ke local storage jika Firestore gagal
+      List? stored = storage.read('reading_list');
+      if (stored != null) {
+        list.assignAll(stored.map((e) => ReadingItem.fromJson(e)));
+      }
+      List? storedTags = storage.read('reading_tags');
+      if (storedTags != null) {
+        try {
+          tags.assignAll(List<String>.from(storedTags));
+        } catch (_) {
+          tags.assignAll(storedTags.map((e) => e.toString()).toList());
+        }
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
   
 
@@ -73,16 +103,17 @@ class ReadingController extends GetxController {
   }
 
   // ✅ MEMPERBAIKI UNDEFINED NAMED PARAMETER DI addItem
-  void addItem(
+  Future<void> addItem(
     String title, {
     String? author, // ⬅️ DITAMBAHKAN
     String? notes, // ⬅️ DITAMBAHKAN
     List<String>? tags, 
     String? imageUrl
-  }) {
+  }) async {
     final validTags = (tags ?? []).where((t) => this.tags.contains(t)).toList();
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
     final item = ReadingItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: id,
         title: title,
         author: author, // ⬅️ Digunakan
         notes: notes,  // ⬅️ Digunakan
@@ -91,39 +122,74 @@ class ReadingController extends GetxController {
         imageUrl: imageUrl); 
     
     list.add(item);
+    
+    // Simpan ke Firestore
+    try {
+      await firestore.collection('books').doc(id).set(item.toJson());
+      print('✅ Buku disimpan ke Firestore: $title');
+    } catch (e) {
+      print('❌ Error saving to Firestore: $e');
+    }
   }
 
-  void toggleStatus(String id) {
+  Future<void> toggleStatus(String id) async {
     int index = list.indexWhere((e) => e.id == id);
     if (index != -1) {
       list[index].isRead = !list[index].isRead;
       
       list.refresh();
+      
+      // Update status di Firestore
+      try {
+        await firestore.collection('books').doc(id).update({
+          'isRead': list[index].isRead
+        });
+        print('✅ Status buku diupdate di Firestore');
+      } catch (e) {
+        print('❌ Error updating status in Firestore: $e');
+      }
     }
   }
 
   /// Set read status explicitly. Useful for undo operations.
-  void setStatus(String id, bool read) {
+  Future<void> setStatus(String id, bool read) async {
     int index = list.indexWhere((e) => e.id == id);
     if (index != -1) {
       list[index].isRead = read;
       list.refresh();
+      
+      // Update status di Firestore
+      try {
+        await firestore.collection('books').doc(id).update({
+          'isRead': read
+        });
+      } catch (e) {
+        print('❌ Error updating status in Firestore: $e');
+      }
     }
   }
 
-  void deleteItem(String id) {
+  Future<void> deleteItem(String id) async {
     list.removeWhere((e) => e.id == id);
+    
+    // Hapus dari Firestore
+    try {
+      await firestore.collection('books').doc(id).delete();
+      print('✅ Buku dihapus dari Firestore');
+    } catch (e) {
+      print('❌ Error deleting from Firestore: $e');
+    }
   }
 
   // ✅ MEMPERBAIKI UNDEFINED NAMED PARAMETER DI updateItem
-  void updateItem(
+  Future<void> updateItem(
     String id, 
     String title, {
     String? author, // ⬅️ DITAMBAHKAN
     String? notes, // ⬅️ DITAMBAHKAN
     List<String>? tags, 
     String? imageUrl
-  }) {
+  }) async {
     int index = list.indexWhere((e) => e.id == id);
     if (index != -1) {
       list[index].title = title;
@@ -142,6 +208,14 @@ class ReadingController extends GetxController {
       }
       
       list.refresh();
+      
+      // Update di Firestore
+      try {
+        await firestore.collection('books').doc(id).update(list[index].toJson());
+        print('✅ Buku diupdate di Firestore: $title');
+      } catch (e) {
+        print('❌ Error updating Firestore: $e');
+      }
     }
   }
 
@@ -157,15 +231,23 @@ class ReadingController extends GetxController {
     }
   }
 
-  void addTag(String tag) {
+  Future<void> addTag(String tag) async {
     final t = tag.trim();
     if (t.isEmpty) return;
     if (!tags.contains(t)) {
       tags.add(t);
+      
+      // Simpan tag ke Firestore
+      try {
+        await firestore.collection('tags').doc(t).set({'name': t});
+        print('✅ Tag disimpan ke Firestore: $t');
+      } catch (e) {
+        print('❌ Error saving tag to Firestore: $e');
+      }
     }
   }
 
-  void removeTag(String tag) {
+  Future<void> removeTag(String tag) async {
     tags.remove(tag);
     for (var item in list) {
       if (item.tags.contains(tag)) {
@@ -173,6 +255,14 @@ class ReadingController extends GetxController {
       }
     }
     list.refresh();
+    
+    // Hapus tag dari Firestore
+    try {
+      await firestore.collection('tags').doc(tag).delete();
+      print('✅ Tag dihapus dari Firestore: $tag');
+    } catch (e) {
+      print('❌ Error deleting tag from Firestore: $e');
+    }
   }
 
   void removeTags(List<String> removed) {

@@ -10,8 +10,8 @@ import 'views/edit_view.dart';
 import 'views/tags_view.dart';
 import 'views/all_books_view.dart';
 import 'views/read_books_view.dart';
-import 'views/splash_view.dart'; // ⬅️ Tambahkan ini
-import 'package:reading_list_app/views/settings_view.dart'; // TAMBAH INI
+import 'views/splash_view.dart';
+import 'views/explore_view.dart';
 
 Future<void> main() async {
   try {
@@ -90,9 +90,9 @@ class ReadingListApp extends StatelessWidget {
           transition: Transition.rightToLeft,
         ),
         GetPage(
-          name: '/settings', 
-          page: () => SettingsView(),
-          transition: Transition.rightToLeft
+          name: '/explore',
+          page: () => ExploreView(),
+          transition: Transition.rightToLeft,
         ),
       ],
     );

@@ -91,14 +91,11 @@ class HomeView extends StatelessWidget {
             _bottomNavItem(Icons.home, 'Home', true, () {
               // Already on home, do nothing
             }),
-            _bottomNavItem(Icons.bookmark_border, 'sudah dibaca', false, () {
+            _bottomNavItem(Icons.bookmark_border, 'Sudah Dibaca', false, () {
               Get.toNamed('/read-books');
             }),
             _bottomNavItem(Icons.explore_outlined, 'Jelajahi', false, () {
-              _showComingSoonSnackbar('Jelajahi');
-            }),
-            _bottomNavItem(Icons.settings_outlined, 'Settings', false, () {
-              _navigateToSettings();
+              Get.toNamed('/explore');
             }),
           ],
         ),
@@ -362,12 +359,9 @@ class HomeView extends StatelessWidget {
           Get.toNamed('/read-books');
         }),
         _navIcon(Icons.explore_outlined, false, () {
-          _showComingSoonSnackbar('Explore');
+          Get.toNamed('/explore');
         }),
         const Spacer(),
-        _navIcon(Icons.settings_outlined, false, () {
-          _navigateToSettings();
-        }),
         const SizedBox(height: 20),
       ],
     ),
@@ -1254,18 +1248,4 @@ class HomeView extends StatelessWidget {
       ],
     );
   }
-  void _navigateToSettings() {
-  Get.toNamed('/settings');
-}
-
-void _showComingSoonSnackbar(String feature) {
-  Get.snackbar(
-    'Coming Soon',
-    '$feature feature is under development',
-    backgroundColor: const Color(0xFFE8C547),
-    colorText: Colors.black,
-    snackPosition: SnackPosition.BOTTOM,
-    duration: const Duration(seconds: 2),
-  );
-}
 }
