@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   get: ^4.6.6 # untuk state management dan routing
   get_storage: ^2.1.1 # untuk local storage (backup)
+  firebase_core: ^2.24.2 # untuk Firebase integration
   image_picker: ^1.1.2 
   path_provider: ^2.1.3
   path: ^1.9.0
