@@ -333,14 +333,12 @@ class ExploreView extends StatelessWidget {
                 // Action Button
                 ElevatedButton.icon(
                   onPressed: () {
-                    Get.snackbar(
-                      'Tambahkan ke Library',
-                      'Fitur ini akan menambahkan "${book['title']}" ke daftar bacaan Anda',
-                      backgroundColor: const Color(0xFFE8C547),
-                      colorText: Colors.black,
-                      snackPosition: SnackPosition.BOTTOM,
-                      duration: const Duration(seconds: 2),
-                    );
+                    // Navigasi ke halaman add dengan data buku sudah terisi
+                    Get.toNamed('/add', arguments: {
+                      'title': book['title'],
+                      'author': book['author'],
+                      'description': book['description'],
+                    });
                   },
                   icon: const Icon(Icons.add, size: 18),
                   label: const Text('Tambahkan ke Library'),

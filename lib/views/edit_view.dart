@@ -591,26 +591,29 @@ class EditView extends StatelessWidget {
 
             // Step Content
             Expanded(
-              child: Obx(() => AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) {
-                      // Menggunakan pergeseran horizontal (default)
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: Tween<Offset>(
-                            // Menyesuaikan arah slide agar terasa seperti perpindahan langkah
-                            begin: currentStep.value == 0 ? const Offset(-0.1, 0) : const Offset(0.1, 0),
-                            end: Offset.zero,
-                          ).animate(animation),
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: currentStep.value == 0
-                        ? _buildStep1(context, theme)
-                        : _buildStep2(context, theme),
-                  )),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Obx(() => AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) {
+                        // Menggunakan pergeseran horizontal (default)
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              // Menyesuaikan arah slide agar terasa seperti perpindahan langkah
+                              begin: currentStep.value == 0 ? const Offset(-0.1, 0) : const Offset(0.1, 0),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: currentStep.value == 0
+                          ? _buildStep1(context, theme)
+                          : _buildStep2(context, theme),
+                    )),
+              ),
             ),
 
             // Bottom Navigation
@@ -943,10 +946,13 @@ class EditView extends StatelessWidget {
   Widget _buildStep2(BuildContext context, ThemeData theme) {
     return SingleChildScrollView(
       key: const ValueKey('step2'),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Text(
             'Kategorikan Bacaan',
             style: theme.textTheme.headlineSmall?.copyWith(
@@ -967,30 +973,48 @@ class EditView extends StatelessWidget {
             if (tags.isEmpty) {
               return Center(
                 child: Container(
-                  padding: const EdgeInsets.all(32),
+                  margin: const EdgeInsets.symmetric(vertical: 40),
+                  padding: const EdgeInsets.all(40),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
-                    borderRadius: BorderRadius.circular(20),
+                    color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.4 * 255).round()),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: theme.colorScheme.outline.withAlpha((0.2 * 255).round()),
+                      width: 1.5,
+                    ),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.category_outlined,
-                        size: 64,
-                        color: theme.colorScheme.onSurfaceVariant.withAlpha((0.5 * 255).round()),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer.withAlpha((0.3 * 255).round()),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.label_outline_rounded,
+                          size: 48,
+                          color: theme.colorScheme.primary,
+                        ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
                       Text(
                         'Belum Ada Kategori',
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          letterSpacing: -0.5,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Text(
-                        'Buat kategori terlebih dahulu dari menu utama',
+                        'Buat kategori terlebih dahulu\ndari menu utama',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 14,
+                          height: 1.5,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -1003,128 +1027,172 @@ class EditView extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Obx(() => Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            theme.colorScheme.primaryContainer,
-                            theme.colorScheme.secondaryContainer,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surface,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.checklist_rounded,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                Obx(() => AnimatedSize(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      alignment: Alignment.topCenter,
+                      child: pickedTags.isNotEmpty
+                          ? Column(
                               children: [
-                                Text(
-                                  '${pickedTags.length} Kategori Dipilih',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: theme.colorScheme.onPrimaryContainer,
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.5 * 255).round()),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: theme.colorScheme.primary.withAlpha((0.3 * 255).round()),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.primary.withAlpha((0.1 * 255).round()),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Icon(
+                                          Icons.label_rounded,
+                                          color: theme.colorScheme.primary,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${pickedTags.length} Kategori Terpilih',
+                                              style: theme.textTheme.titleSmall?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                letterSpacing: -0.2,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              pickedTags.join(' • '),
+                                              style: theme.textTheme.bodySmall?.copyWith(
+                                                color: theme.colorScheme.onSurfaceVariant,
+                                                fontSize: 13,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                if (pickedTags.isNotEmpty)
-                                  Text(
-                                    pickedTags.join(', '),
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onPrimaryContainer
-                                          .withAlpha((0.8 * 255).round()),
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                const SizedBox(height: 20),
                               ],
-                            ),
-                          ),
-                        ],
+                            )
+                          : const SizedBox.shrink(),
+                    )),
+                Obx(() => Text(
+                      pickedTags.isEmpty ? 'Pilih Kategori' : 'Kategori Tersedia',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        letterSpacing: 0.5,
                       ),
                     )),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: tags.map((tag) {
                     return Obx(() {
                       final isSelected = pickedTags.contains(tag);
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        child: FilterChip(
-                          label: Text(tag),
-                          selected: isSelected,
-                          onSelected: (_) {
-                            hasChanges.value = true; 
-                            if (isSelected) {
-                              pickedTags.remove(tag);
-                            } else {
-                              pickedTags.add(tag);
-                            }
-                          },
-                          // 🎨 Ikon Lingkaran Putih Tanpa Shadow
-                          avatar: isSelected
-                              ? Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white, 
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.check_rounded,
-                                    color: theme.colorScheme.primary, 
-                                    size: 20, 
-                                  ),
-                                )
-                              : null,
-                          
-                          checkmarkColor: Colors.transparent, 
-                          // ✅ PERBAIKAN: Mengganti withOpacity dengan withAlpha
-                          selectedColor: theme.colorScheme.primary.withAlpha((0.8 * 255).round()),
-                          backgroundColor: theme.colorScheme.surface,
-                          side: BorderSide(
-                            color: isSelected
-                              ? theme.colorScheme.primary
-                              // ✅ PERBAIKAN: Mengganti withOpacity dengan withAlpha
-                              : theme.colorScheme.outline.withAlpha((0.3 * 255).round()),
-                            width: 1.0, 
-                          ),
+                      return TweenAnimationBuilder<double>(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.elasticOut,
+                        tween: Tween<double>(
+                          begin: 0.0,
+                          end: isSelected ? 1.0 : 0.0,
+                        ),
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: 1.0 + (value * 0.1),
+                            child: GestureDetector(
+                              onTap: () {
+                                hasChanges.value = true;
+                                if (isSelected) {
+                                  pickedTags.remove(tag);
+                                } else {
+                                  pickedTags.add(tag);
+                                }
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeInOut,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 12,
                           ),
-                          labelStyle: TextStyle(
+                          decoration: BoxDecoration(
                             color: isSelected
-                                ? theme.colorScheme.onPrimary 
-                                : theme.colorScheme.onSurface,
-                            fontWeight: FontWeight.w500, 
-                            fontSize: 15,
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Colors.white.withAlpha((0.4 * 255).round())
+                                  : theme.colorScheme.outline.withAlpha((0.3 * 255).round()),
+                              width: 2.0,
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: theme.colorScheme.primary.withAlpha((0.2 * 255).round()),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
                           ),
-                          elevation: 0, 
-                          pressElevation: 0, 
-                        ),
-                      );
-                    });
-                  }).toList(),
-                ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isSelected)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                              Text(
+                                tag,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      });
+                    }).toList(),
+                  ),
               ],
             );
           }),
         ],
+        ),
       ),
     );
   }

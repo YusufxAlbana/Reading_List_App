@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; // TAMBAH INI
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -117,10 +117,10 @@ class SettingsController extends GetxController {
       titleStyle: const TextStyle(color: Colors.white),
       backgroundColor: const Color(0xFF2C3E45),
       content: const Text(
-        "This will delete all your books and settings. This action cannot be undone.",
+        "This will reset all your books and settings. This action cannot be undone.",
         style: TextStyle(color: Colors.white70),
       ),
-      textConfirm: "Delete",
+      textConfirm: "Reset",
       textCancel: "Cancel",
       confirmTextColor: Colors.black,
       cancelTextColor: const Color(0xFFE8C547),

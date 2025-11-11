@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'constants/theme_constants.dart';
@@ -12,36 +11,6 @@ import 'views/all_books_view.dart';
 import 'views/read_books_view.dart';
 import 'views/splash_view.dart';
 import 'views/explore_view.dart';
-
-Future<void> main() async {
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-    
-    // Initialize Firebase
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: 'AIzaSyAhK-Lw_clLeIc6epAKIfWmA_G4VoNqUrk',
-        appId: '1:226685690681:android:3b15c8bebec43d7fa43ee8',
-        messagingSenderId: '226685690681',
-        projectId: 'reading-list-app-8dfe9',
-      ),
-    );
-    print("Firebase Terhubung ke:");
-    print("API Key: ${Firebase.app().options.apiKey}");
-    print("Project ID: ${Firebase.app().options.projectId}");
-    
-    // Initialize GetStorage
-    await GetStorage.init();
-    
-    // Initialize Controller
-    Get.put(ReadingController());
-    
-    runApp(const ReadingListApp());
-  } catch (e) {
-    debugPrint('Error initializing app: $e');
-    // Implement proper error handling
-  }
-}
 
 // --- APLIKASI UTAMA ---
 class ReadingListApp extends StatelessWidget {
@@ -97,4 +66,16 @@ class ReadingListApp extends StatelessWidget {
       ],
     );
   }
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize GetStorage
+  await GetStorage.init();
+  
+  // Initialize Controller
+  Get.put(ReadingController());
+  
+  runApp(const ReadingListApp());
 }
