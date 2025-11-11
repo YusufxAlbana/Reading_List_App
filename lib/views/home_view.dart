@@ -193,7 +193,7 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                         'Manage Tags',
+                         'Tags',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -1142,7 +1142,7 @@ class HomeView extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () => Get.toNamed('/tags'),
                     icon: const Icon(Icons.label_outline, size: 18),
-                    label: const Text('Tags'),
+                    label: const Text('Manage Tags'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFE8C547),
                       side: const BorderSide(color: Color(0xFFE8C547)),
