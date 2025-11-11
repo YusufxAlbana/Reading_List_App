@@ -1,3 +1,4 @@
+// lib/views/home_view.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reading_controller.dart';
@@ -28,7 +29,7 @@ class HomeView extends StatelessWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      _buildTopBar(),
+                      _buildTopBar(), // <-- Search bar dihapus dari sini
                       Expanded(
                         child: _buildMainContent(),
                       ),
@@ -132,57 +133,12 @@ class HomeView extends StatelessWidget {
   Widget _buildMobileLayout() {
     return CustomScrollView(
       slivers: [
-        // Search Bar
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Container(
-              height: 52,
-              decoration: BoxDecoration(
-                color: const Color(0xFF2C3E45),
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha((0.12 * 255).round()),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Colors.white54),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        style: const TextStyle(color: Colors.white70),
-                        decoration: const InputDecoration(
-                          hintText: 'Search Any Books....',
-                          hintStyle: TextStyle(color: Colors.white38),
-                          border: InputBorder.none,
-                        ),
-                        onChanged: (v) => controller.searchQuery.value = v,
-                      ),
-                    ),
-                    Obx(() => controller.searchQuery.value.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.white54),
-                            onPressed: () => controller.searchQuery.value = '',
-                          )
-                        : const SizedBox.shrink()),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        // --- BAGIAN SEARCH BAR DIHAPUS DARI SINI ---
         
-  // Previous Reading Section
+        // Previous Reading Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0), // Padding atas ditambahkan
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -237,7 +193,7 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                         'Tags',
+                         'Manage Tags',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -399,29 +355,9 @@ class HomeView extends StatelessWidget {
             style: TextStyle(color: Colors.white54, fontSize: 16),
           ),
           const Spacer(),
-          // Search
-          Flexible(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 300),
-              height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFF3D5159),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: TextField(
-                style: const TextStyle(color: Colors.white70, fontSize: 14),
-                decoration: const InputDecoration(
-                  hintText: 'Search here',
-                  hintStyle: TextStyle(color: Colors.white38, fontSize: 14),
-                  prefixIcon: Icon(Icons.search, color: Colors.white38, size: 18),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                ),
-                onChanged: (v) => controller.searchQuery.value = v,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
+          
+          // --- BAGIAN SEARCH BAR DIHAPUS DARI SINI ---
+
           CircleAvatar(
             radius: 16,
             backgroundColor: const Color(0xFFE8C547),
