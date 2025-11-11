@@ -42,7 +42,7 @@ class HomeView extends StatelessWidget {
         onPressed: () => Get.toNamed('/add'),
         backgroundColor: const Color(0xFFE8C547),
         icon: const Icon(Icons.add, color: Colors.black),
-        label: const Text('Tambah', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
+        label: const Text('Add', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
       ),
       bottomNavigationBar: isMobile ? _buildBottomNav() : null,
     );
@@ -53,7 +53,7 @@ class HomeView extends StatelessWidget {
       backgroundColor: const Color(0xFF2C3E45),
       elevation: 0,
       title: const Text(
-        'Library',
+        'Reading List App',
         style: TextStyle(
           color: Colors.white,
           fontSize: 20,
@@ -91,10 +91,10 @@ class HomeView extends StatelessWidget {
             _bottomNavItem(Icons.home, 'Home', true, () {
               // Already on home, do nothing
             }),
-            _bottomNavItem(Icons.bookmark_border, 'Sudah Dibaca', false, () {
+            _bottomNavItem(Icons.bookmark_border, 'already read', false, () {
               Get.toNamed('/read-books');
             }),
-            _bottomNavItem(Icons.explore_outlined, 'Jelajahi', false, () {
+            _bottomNavItem(Icons.explore_outlined, 'Explore', false, () {
               Get.toNamed('/explore');
             }),
           ],
@@ -159,7 +159,7 @@ class HomeView extends StatelessWidget {
                       child: TextField(
                         style: const TextStyle(color: Colors.white70),
                         decoration: const InputDecoration(
-                          hintText: 'Cari bacaan...',
+                          hintText: 'Search Any Books....',
                           hintStyle: TextStyle(color: Colors.white38),
                           border: InputBorder.none,
                         ),
@@ -190,18 +190,11 @@ class HomeView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Bacaan Terakhir',
+                      'Last Reading',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => Get.toNamed('/all-books'),
-                        child: const Text(
-                          'Lihat semua',
-                        style: TextStyle(color: Color(0xFFE8C547), fontSize: 13),
                       ),
                     ),
                   ],
@@ -215,8 +208,8 @@ class HomeView extends StatelessWidget {
                   
                   if (books.isEmpty) {
                     return _emptyState(
-                        'Tidak ada bacaan belum selesai',
-                        'Tambahkan bacaan pertama untuk memulai',
+                        'There are no unfinished readings',
+                        'Add the first reading to begin',
                     );
                   }
                   
@@ -244,7 +237,7 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                         'Kategori',
+                         'Tags',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -515,7 +508,7 @@ class HomeView extends StatelessWidget {
           final books = controller.filteredList.where((b) => !b.isRead).take(6).toList();
           
           if (books.isEmpty) {
-            return _emptyState('Belum ada bacaan belum selesai', 'Tambahkan bacaan pertama untuk memulai');
+            return _emptyState('No reading has been completed yet', 'Add the first reading to begin');
           }
           
           return SizedBox(
@@ -641,7 +634,7 @@ class HomeView extends StatelessWidget {
           final tags = controller.availableTags;
           
           if (tags.isEmpty) {
-            return _emptyState('Belum ada kategori', 'Buat tag untuk mengatur bacaan Anda');
+            return _emptyState('No categories yet', 'Create tags to organize your reading');
           }
           
           return Wrap(
@@ -805,7 +798,7 @@ class HomeView extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => Get.toNamed('/add'),
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Tambah Bacaan'),
+                    label: const Text('Add Book'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE8C547),
                       foregroundColor: Colors.black,

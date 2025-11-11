@@ -116,7 +116,7 @@ class ExploreView extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
         title: const Text(
-          'Jelajahi Buku',
+          'Explore Books',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -140,7 +140,7 @@ class ExploreView extends StatelessWidget {
             children: [
               // Top Recommendations Section
               const Text(
-                '🌟 Top Rekomendasi',
+                '🌟 Top Recomendations',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -149,7 +149,7 @@ class ExploreView extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               const Text(
-                'Buku-buku terbaik pilihan editor',
+                "Editor's choice of the best books",
                 style: TextStyle(
                   color: Colors.white54,
                   fontSize: 14,
@@ -164,7 +164,7 @@ class ExploreView extends StatelessWidget {
               
               // Popular Books Section
               const Text(
-                '🔥 Populer Minggu Ini',
+                '🔥 Popular This Week',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -173,7 +173,7 @@ class ExploreView extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               const Text(
-                'Buku yang paling banyak dibaca',
+                'The most widely read book',
                 style: TextStyle(
                   color: Colors.white54,
                   fontSize: 14,

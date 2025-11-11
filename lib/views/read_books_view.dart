@@ -20,7 +20,7 @@ class ReadBooksView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF2C3E45),
         elevation: 0,
-        title: const Text('Bacaan Selesai', style: TextStyle(color: Colors.white)),
+        title: const Text('reading finished', style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
@@ -47,19 +47,19 @@ class ReadBooksView extends StatelessWidget {
                         const Icon(Icons.check_circle_outline,
                             size: 72, color: Color(0xFFE8C547)),
                         const SizedBox(height: 16),
-            const Text('Belum ada bacaan selesai',
+            const Text('No reading has been completed yet',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
-            const Text('Tandai bacaan sebagai selesai untuk mengumpulkannya di sini',
+            const Text('Mark the reading as complete to collect it here',
               style: TextStyle(color: Colors.white54)),
                         const SizedBox(height: 24),
                         ElevatedButton.icon(
                           onPressed: () => Get.toNamed('/add'),
                           icon: const Icon(Icons.add, color: Colors.black),
-                          label: const Text('Tambah Bacaan'),
+                          label: const Text('Add Reading'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFE8C547),
                             foregroundColor: Colors.black,
