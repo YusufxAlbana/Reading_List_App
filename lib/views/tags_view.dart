@@ -217,8 +217,6 @@ class _TagsViewState extends State<TagsView> {
     }
   }
 
-  // --- (Method _showDeleteConfirmDialog lama sudah tidak dipakai) ---
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -388,7 +386,7 @@ class _TagsViewState extends State<TagsView> {
   Widget _buildTagItem(BuildContext context, String tag) {
     // Perbaikan bug null-check
     final count = controller.list.where((b) {
-      return (b.tags ?? []).contains(tag);
+      return (b.tags).contains(tag);
     }).length;
     
     // Cek apakah item ini terseleksi
@@ -408,10 +406,29 @@ class _TagsViewState extends State<TagsView> {
           ),
         ),
         child: ListTile(
-          // Aksi Tap:
-          // - Mode Seleksi: Toggle seleksi
-          // - Mode Normal: Tidak melakukan apa-apa
-          onTap: _isSelectionMode ? () => _toggleTagSelection(tag) : null,
+          // ================== PERUBAHAN DI SINI ==================
+          onTap: () {
+            if (_isSelectionMode) {
+              // Jika mode seleksi, toggle pilihan
+              _toggleTagSelection(tag);
+            } else {
+              // Jika mode normal, navigasi ke halaman buku yang difilter
+              
+              // 1. Bersihkan filter lain
+              controller.searchQuery.value = '';
+              controller.filterStatus.value = 'all';
+              controller.sortOrder.value = 'newest';
+
+              // 2. Atur filter tag
+              controller.selectedTags.clear();
+              controller.selectedTags.add(tag);
+
+              // 3. Navigasi ke halaman semua buku
+              Get.toNamed('/all-books');
+            }
+          },
+          // ================== AKHIR PERUBAHAN ==================
+
           // Aksi Long Press:
           // - Selalu masuk ke mode seleksi & langsung pilih item
           onLongPress: () {

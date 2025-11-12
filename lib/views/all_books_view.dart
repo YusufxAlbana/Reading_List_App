@@ -190,14 +190,28 @@ class AllBooksView extends StatelessWidget {
                                   fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
-                            Text(
-                              controller.searchQuery.value.isNotEmpty
-                                  ? 'Try adjusting your search or filters'
-                                  : 'Start adding books to your library',
-                              style: const TextStyle(
-                                  color: Colors.white54, fontSize: 14),
-                              textAlign: TextAlign.center,
+                            
+                            // --- MODIFIKASI DI SINI ---
+                            // Builder ini digunakan untuk mendapatkan konteks filter terbaru
+                            Builder(
+                              builder: (context) {
+                                // Cek semua kondisi filter
+                                final isFiltered = controller.filterStatus.value != 'all' ||
+                                    controller.searchQuery.value.isNotEmpty ||
+                                    controller.selectedTags.isNotEmpty;
+
+                                return Text(
+                                  isFiltered
+                                      ? 'Coba sesuaikan pencarian atau filter Anda'
+                                      : 'Mulai tambahkan buku ke perpustakaan Anda',
+                                  style: const TextStyle(
+                                      color: Colors.white54, fontSize: 14),
+                                  textAlign: TextAlign.center,
+                                );
+                              }
                             ),
+                            // --- AKHIR MODIFIKASI ---
+
                             if (controller.list.isEmpty) ...[
                               const SizedBox(height: 24),
                               ElevatedButton.icon(
