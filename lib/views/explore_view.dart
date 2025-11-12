@@ -9,8 +9,8 @@ class ExploreView extends StatefulWidget {
   // Data dummy dipindahkan ke sini agar bisa diakses oleh State
   final List<Map<String, dynamic>> topRecommendations = [
     {
-      'title': 'Atomic Habits',
-      'author': 'James Clear',
+      'title': 'Goat Life',
+      'author': 'Lionel Messi',
       'description': 'Panduan praktis untuk membangun kebiasaan baik dan menghilangkan kebiasaan buruk dengan perubahan kecil yang memberikan hasil luar biasa.',
       'rating': 4.8,
       'reviews': 15234,
@@ -18,8 +18,8 @@ class ExploreView extends StatefulWidget {
       'color': const Color(0xFF8B4513),
     },
     {
-      'title': 'The Psychology of Money',
-      'author': 'Morgan Housel',
+      'title': 'The End of Debate',
+      'author': 'Lionel Messi',
       'description': 'Kumpulan cerita pendek tentang bagaimana orang berpikir tentang uang dan mengajarkan cara membuat keputusan finansial yang lebih baik.',
       'rating': 4.7,
       'reviews': 12890,
@@ -27,8 +27,8 @@ class ExploreView extends StatefulWidget {
       'color': const Color(0xFF2F4F4F),
     },
     {
-      'title': 'Sapiens',
-      'author': 'Yuval Noah Harari',
+      'title': 'Impossible Way',
+      'author': 'Lionel Messi',
       'description': 'Sejarah singkat umat manusia dari zaman batu hingga era modern, mengeksplorasi bagaimana Homo sapiens menjadi spesies dominan.',
       'rating': 4.6,
       'reviews': 23456,
@@ -36,19 +36,19 @@ class ExploreView extends StatefulWidget {
       'color': const Color(0xFF556B2F),
     },
     {
-      'title': 'Deep Work',
-      'author': 'Cal Newport',
+      'title': 'No One Can Stop Me',
+      'author': 'Cristiano Ronaldo',
       'description': 'Aturan untuk fokus sukses di dunia yang penuh distraksi, mengajarkan bagaimana mengembangkan kemampuan bekerja secara mendalam.',
       'rating': 4.5,
       'reviews': 9876,
-      'imageUrl': 'assets/images/4.png', // Path gambar diubah
+      'imageUrl': 'assets/images/5.jpeg', // Path gambar diubah
       'color': const Color(0xFFCC7722),
     },
   ];
 
   final List<Map<String, dynamic>> popularBooks = [
     {
-      'title': 'Think and Grow Rich',
+      'title': 'UCL Champion',
       'author': 'Napoleon Hill',
       'description': 'Filosofi klasik tentang kesuksesan pribadi dan finansial berdasarkan wawancara dengan orang-orang sukses.',
       'rating': 4.4,
@@ -57,7 +57,7 @@ class ExploreView extends StatefulWidget {
       'color': const Color(0xFF4B0082),
     },
     {
-      'title': 'The Lean Startup',
+      'title': 'The Best of Lionel Messi',
       'author': 'Eric Ries',
       'description': 'Pendekatan baru untuk membangun dan meluncurkan startup dengan cepat dan efisien melalui iterasi dan pembelajaran.',
       'rating': 4.3,
@@ -66,7 +66,7 @@ class ExploreView extends StatefulWidget {
       'color': const Color(0xFFDC143C),
     },
     {
-      'title': 'Educated',
+      'title': "8 Baloon di'or",
       'author': 'Tara Westover',
       'description': 'Memoar yang menginspirasi tentang seorang wanita yang tumbuh di keluarga survivalis dan perjalanannya menuju pendidikan.',
       'rating': 4.6,
@@ -75,12 +75,12 @@ class ExploreView extends StatefulWidget {
       'color': const Color(0xFF8B4513),
     },
     {
-      'title': 'The 7 Habits',
+      'title': 'Hattrick Revenge',
       'author': 'Stephen Covey',
       'description': 'Tujuh kebiasaan orang yang sangat efektif untuk mencapai kesuksesan pribadi dan profesional.',
       'rating': 4.5,
       'reviews': 14567,
-      'imageUrl': 'assets/images/4.png',
+      'imageUrl': 'assets/images/5.jpeg',
       'color': const Color(0xFF2F4F4F),
     },
     // ... (data dummy lainnya tetap sama)
