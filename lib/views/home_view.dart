@@ -43,7 +43,7 @@ class HomeView extends StatelessWidget {
         onPressed: () => Get.toNamed('/add'),
         backgroundColor: const Color(0xFFE8C547),
         icon: const Icon(Icons.add, color: Colors.black),
-        label: const Text('Add', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
+        label: const Text('Add Book', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
       ),
       bottomNavigationBar: isMobile ? _buildBottomNav() : null,
     );
@@ -248,7 +248,7 @@ class HomeView extends StatelessWidget {
                     TextButton(
                       onPressed: () => Get.toNamed('/all-books'),
                       child: const Text(
-                        'Lihat semua',
+                        'View All',
                         style: TextStyle(color: Color(0xFFE8C547), fontSize: 13),
                       ),
                     ),
