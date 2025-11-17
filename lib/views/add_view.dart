@@ -461,88 +461,100 @@ class AddView extends StatelessWidget {
           const SizedBox(height: 32),
 
           // Title Field
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: TextField(
-              controller: titleController,
-              decoration: InputDecoration(
-                labelText: 'Judul Bacaan',
-                hintText: 'Masukkan judul bacaan...',
-                prefixIcon: Icon(
-                  Icons.auto_stories_rounded,
-                  color: theme.colorScheme.primary,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.transparent,
-                contentPadding: const EdgeInsets.all(20),
+          TextField(
+            controller: titleController,
+            decoration: InputDecoration(
+              labelText: 'Judul Bacaan',
+              hintText: 'Masukkan judul bacaan...',
+              prefixIcon: Icon(
+                Icons.auto_stories_rounded,
+                color: theme.colorScheme.primary,
               ),
-              style: theme.textTheme.titleMedium,
-              textCapitalization: TextCapitalization.words,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.outline.withAlpha((0.5 * 255).round()),
+                  width: 2,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.primary,
+                  width: 2.5,
+                ),
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
+              contentPadding: const EdgeInsets.all(20),
             ),
+            style: theme.textTheme.titleMedium,
+            textCapitalization: TextCapitalization.words,
           ),
           const SizedBox(height: 16),
 
           // Author Field
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: TextField(
-              controller: authorController,
-              decoration: InputDecoration(
-                labelText: 'Penulis (Opsional)',
-                hintText: 'Siapa penulisnya?',
-                prefixIcon: Icon(
-                  Icons.person_rounded,
-                  color: theme.colorScheme.primary,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.transparent,
-                contentPadding: const EdgeInsets.all(20),
+          TextField(
+            controller: authorController,
+            decoration: InputDecoration(
+              labelText: 'Penulis (Opsional)',
+              hintText: 'Siapa penulisnya?',
+              prefixIcon: Icon(
+                Icons.person_rounded,
+                color: theme.colorScheme.primary,
               ),
-              textCapitalization: TextCapitalization.words,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.outline.withAlpha((0.5 * 255).round()),
+                  width: 2,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.primary,
+                  width: 2.5,
+                ),
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
+              contentPadding: const EdgeInsets.all(20),
             ),
+            textCapitalization: TextCapitalization.words,
           ),
           const SizedBox(height: 16),
 
           // Notes Field
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: TextField(
-              controller: notesController,
-              decoration: InputDecoration(
-                labelText: 'Catatan (Opsional)',
-                hintText: 'Tambahkan catatan pribadi...',
-                prefixIcon: Icon(
-                  Icons.edit_note_rounded,
-                  color: theme.colorScheme.primary,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.transparent,
-                contentPadding: const EdgeInsets.all(20),
+          TextField(
+            controller: notesController,
+            decoration: InputDecoration(
+              labelText: 'Catatan (Opsional)',
+              hintText: 'Tambahkan catatan pribadi...',
+              prefixIcon: Icon(
+                Icons.edit_note_rounded,
+                color: theme.colorScheme.primary,
               ),
-              maxLines: 4,
-              textCapitalization: TextCapitalization.sentences,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.outline.withAlpha((0.5 * 255).round()),
+                  width: 2,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.primary,
+                  width: 2.5,
+                ),
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
+              contentPadding: const EdgeInsets.all(20),
             ),
+            maxLines: 4,
+            textCapitalization: TextCapitalization.sentences,
           ),
         ],
       ),
