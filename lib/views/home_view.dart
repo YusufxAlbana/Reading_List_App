@@ -92,7 +92,7 @@ class HomeView extends StatelessWidget {
             _bottomNavItem(Icons.home, 'Home', true, () {
               // Already on home, do nothing
             }),
-            _bottomNavItem(Icons.bookmark_border, 'already read', false, () {
+            _bottomNavItem(Icons.bookmark_border, 'Already read', false, () {
               Get.toNamed('/read-books');
             }),
             _bottomNavItem(Icons.explore_outlined, 'Explore', false, () {
